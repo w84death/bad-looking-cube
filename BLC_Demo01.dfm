@@ -1,11 +1,11 @@
 object FormCC: TFormCC
-  Left = 188
-  Top = 403
+  Left = 177
+  Top = 417
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Command & Control'
   ClientHeight = 139
-  ClientWidth = 591
+  ClientWidth = 601
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -478,13 +478,14 @@ object FormCC: TFormCC
     0000F01F0000F00F0000E0070000E0070000C0030000C0030000800300008001
     000080010000C0010000C0010000E0010000F01F0000F9FF0000FFFF0000}
   OldCreateOrder = False
+  Visible = True
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 15
   object Image1: TImage
     Left = 0
     Top = 0
-    Width = 591
+    Width = 601
     Height = 139
     Align = alClient
     Picture.Data = {
@@ -979,7 +980,7 @@ object FormCC: TFormCC
       F6FCE9945007FFD9}
   end
   object GroupPlayback: TGroupBox
-    Left = 288
+    Left = 296
     Top = 64
     Width = 297
     Height = 41
@@ -1077,7 +1078,7 @@ object FormCC: TFormCC
     Top = 56
     Width = 193
     Height = 49
-    Caption = 'TIMER'
+    Caption = 'TIMER - TIMESTAMP'
     Color = clBlack
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
@@ -1111,7 +1112,7 @@ object FormCC: TFormCC
   object GroupDemo: TGroupBox
     Left = 8
     Top = 8
-    Width = 129
+    Width = 209
     Height = 41
     Caption = 'DEMO'
     Color = clBlack
@@ -1155,9 +1156,24 @@ object FormCC: TFormCC
       TabOrder = 1
       OnClick = ButtonCloseDermoClick
     end
+    object ButtonShowDirector: TButton
+      Left = 128
+      Top = 16
+      Width = 81
+      Height = 25
+      Caption = 'DIRECTOR'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+      OnClick = ButtonShowDirectorClick
+    end
   end
   object GroupApp: TGroupBox
-    Left = 456
+    Left = 464
     Top = 8
     Width = 129
     Height = 41
@@ -1205,7 +1221,7 @@ object FormCC: TFormCC
     end
   end
   object GroupCamera: TGroupBox
-    Left = 168
+    Left = 224
     Top = 8
     Width = 233
     Height = 41
@@ -1293,7 +1309,7 @@ object FormCC: TFormCC
   object TrackBarDemoTime: TTrackBar
     Left = 8
     Top = 112
-    Width = 577
+    Width = 585
     Height = 25
     Max = 100
     TabOrder = 5

@@ -31,6 +31,7 @@ type
     LabelCamX: TLabel;
     LabelCamY: TLabel;
     LabelCamZ: TLabel;
+    ButtonShowDirector: TButton;
     procedure ButtonTerminateClick(Sender: TObject);
     procedure ButtonRunDemoClick(Sender: TObject);
     procedure ButtonCloseDermoClick(Sender: TObject);
@@ -44,10 +45,7 @@ type
     procedure ButtonAboutClick(Sender: TObject);
     procedure TrackBarDemoTimeChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
+    procedure ButtonShowDirectorClick(Sender: TObject);
   end;
 
 const
@@ -59,7 +57,7 @@ var
   CamSpeed: Double = 1.0;
 implementation
 
-uses BLC_Renderer, BLC_About, Math;
+uses BLC_Renderer, BLC_About, Math, BLC_Director;
 
 {$R *.dfm}
 
@@ -132,12 +130,10 @@ begin
   if TimerDemo.Enabled  then
   begin
     TimerDemo.Enabled := false;
-    FormDemo.Timer1.Enabled := false;
   end
   else
   begin
     TimerDemo.Enabled := true;
-    FormDemo.Timer1.Enabled := true;
   end;
   RefreshTimer;
 end;
@@ -194,6 +190,11 @@ end;
 procedure TFormCC.FormCreate(Sender: TObject);
 begin
   TrackBarDemoTime.Max := Round(DemoLength*100);
+end;
+
+procedure TFormCC.ButtonShowDirectorClick(Sender: TObject);
+begin
+  FormDirector.Show;
 end;
 
 end.

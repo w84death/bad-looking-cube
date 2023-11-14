@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, OpenGL, SysUtils, Variants, Classes, Controls, Forms,
-  ExtCtrls;
+  ExtCtrls,Messages;
 
 type
   TColor = record
@@ -32,6 +32,7 @@ type
     X, Y, Z: GLfloat;
     AngleX:  GLfloat;
     AngleY:  GLfloat;
+    AngleZ:  GLfloat;
   end;
 
   TFormDemo = class(TForm)
@@ -44,6 +45,12 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormPaint(Sender: TObject);
+    private
+      procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    public
+    { Public declarations }
+    protected
+      //procedure Paint; override;
    end;
 
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
@@ -54,10 +61,12 @@ var
   DemoRunning: Boolean = false;
   MovementVector: TVertex = (X:0.0;Y:0.0;Z:0.0);
   Camera: TCamera;
-  Models: array [0..10] of TModel;
+  Models: array [0..13] of TModel;
   DC: HDC;
   RC: HGLRC;
   wglSwapIntervalEXT: TWglSwapIntervalEXT;
+
+  JeepPosition: TVertex = (X:1.0;Y:0.0;Z:20.0);
 
   Framebuffer: GLuint;
   Texture: GLuint;
@@ -66,8 +75,7 @@ var
   AmbientLight: array[0..3] of GLfloat = (0.2,0.2,0.2,1.0);
   DiffuseLight: array[0..3] of GLfloat = (0.7,0.6,0.5,1.0);
   SpecularLight: array[0..3] of GLfloat = (0.8,0.754,0.7,1.0);
-  LightPosition: array[0..3] of GLfloat = (0.0,4.0,0.0,1.0);
-
+  LightPosition: array[0..3] of GLfloat = (-5.0,5.0,0.0,1.0);
 
   Specular: array[0..3] of GLfloat = (0.5,0.5,0.5,1.0);
   EmissionOff: array[0..3] of GLfloat = (0.0,0.0,0.0,1.0);
@@ -76,12 +84,17 @@ var
   Color0: array[0..3] of GLfloat = (0.1,0.1,0.1,1.0);
   Color1: array[0..3] of GLfloat = (0.0,0.1,0.45,1.0);
   Color2: array[0..3] of GLfloat = (0.7,0.2,0.4,1.0);
-
-  FogColor: array[0..3] of GLfloat = (0.6,0.5,0.5,1.0);
+  ColorGreen: array[0..3] of GLfloat = (0.1,0.2,0.0,1.0);
+  FogColor: array[0..3] of GLfloat = (0.1,0.1,0.1,1.0);
 
 implementation
 
 {$R *.dfm}
+
+procedure TFormDemo.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  Message.Result := 1;
+end;
 
 procedure InitVSync;
 begin
@@ -134,8 +147,6 @@ begin
   end;
   Camera.Z := Camera.Z + MovementVector.Z;
 
-
-
  if DemoRunning then
  begin
   Models[0].Rotation.Y := DemoTime*7.0;
@@ -149,7 +160,14 @@ begin
   Models[6].Rotation.Y := Sin(DemoTime+8)*2.0;
   Models[6].Rotation.X := Sin(DemoTime+9)*2.0;
   Models[7].Rotation.Y := DemoTime*24.0;
+
+  JeepPosition.Z := 30.0 - 20.0*Sin(DemoTime/16);
+  JeepPosition.X := 1.0 - Sin(DemoTime/8)*1.5;
+  Models[10].Position := JeepPosition;
+  Models[10].Rotation.Y := Sin(DemoTime/8)*6.0;
+  Models[10].Rotation.Z := Sin(DemoTime/2)*1.0;
  end;
+
  Render();
  Invalidate;
 end;
@@ -266,7 +284,7 @@ begin
 end;
 begin
   LoadModel(0,'P1X_logo.obj', -3.0,2.0,-1.0,  3);
-  LoadModel(1,'floor.obj',    0.0,0.0,0.0,    1);
+  LoadModel(1,'terrain.obj',    0.0,0.0,0.0,    1);
   LoadModel(2,'room.obj',     0.0,0.0,0.0,    1);
   LoadModel(3,'desk.obj',     0.0,0.0,0.0,    2);
   LoadModel(4,'pc.obj',       0.0,0.0,0.0,    2);
@@ -275,6 +293,15 @@ begin
   LoadModel(7,'fan.obj',      0.0,3.0,0.0,    0);
   LoadModel(8,'shelf.obj',    0.0,0.0,0.0,    0);
   LoadModel(9,'sofa.obj',     0.0,0.0,0.0,    0);
+
+  LoadModel(10,'jeep.obj',    JeepPosition.X,
+                              JeepPosition.Y,
+                              JeepPosition.Z,    1);
+  LoadModel(11,'road.obj',    0.0,0.0,0.0,    1);
+
+  LoadModel(12,'tree1.obj',    7.0,0.0,5.0,    1);
+  LoadModel(13,'tree2.obj',    -6.0,0.0,4.0,    1);
+
 
   Camera.Y := 1.6;
   Camera.Z := 3.0;
@@ -300,16 +327,16 @@ begin
   glViewport(0,0,ClientWidth,ClientHeight);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(70.0,ClientWidth/ClientHeight, 0.1, 20.0);
+  gluPerspective(70.0,ClientWidth/ClientHeight, 0.1, 40.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_SMOOTH);
 
   glEnable(GL_FOG);
-  glFogi(GL_FOG_MODE, GL_EXP);
+  glFogi(GL_FOG_MODE, GL_EXP2);
   glFogfv(GL_FOG_COLOR, @FogColor);
-  glFogf(GL_FOG_DENSITY, 0.35);
+  glFogf(GL_FOG_DENSITY, 0.08);
   glHint(GL_FOG_HINT, GL_DONT_CARE);
 
   glEnable(GL_LIGHTING);
@@ -318,24 +345,25 @@ begin
   glLightfv(GL_LIGHT0, GL_DIFFUSE, @DiffuseLight);
   glLightfv(GL_LIGHT0, GL_SPECULAR, @SpecularLight);
   glLightfv(GL_LIGHT0, GL_POSITION, @LightPosition);
-
 end;
 
 procedure TFormDemo.Render();
 var
-  f,j, m: Integer;
+  f,j, m, model: Integer;
   Vert: TVertex;
   Normal: TVertex;
   Face: TFace;
+  side: Double;
 begin
   glClearColor(0.1, 0.1, 0.1, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
-  glRotate(Camera.AngleX, 1.0, 0.0, 0.0);
-  glRotate(Camera.AngleY, 0.0, 1.0, 0.0);
-  glTranslatef(-Camera.X, -Camera.Y, -Camera.Z);
 
-  for m := Low(Models) to High(Models) do
+  gluLookAt(JeepPosition.X+Camera.X, Camera.Y+4.0, JeepPosition.Z+Camera.Z,
+  JeepPosition.X,JeepPosition.Y+2.0,JeepPosition.Z-2.0,
+  0.0,0.0,-1.0);
+
+  for m := Low(Models) to 11 do
   begin
     glPushMatrix();
     glTranslatef(Models[m].Position.X, Models[m].Position.Y, Models[m].Position.Z);
@@ -389,6 +417,43 @@ begin
         end;
       glEnd;
     end;
+    glPopMatrix();
+  end;
+
+  // TREES
+
+  for m := 0 to 128 do
+  begin
+    glPushMatrix();
+    side :=1.0;
+    model := 12;
+    if m mod 2 = 0 then
+    begin
+      side := -1.0;
+      model := 13
+    end;
+    glTranslatef((30+Sin(m*128)*24.0)*side,-0.5+Sin(m*512)*0.5,32+Sin(m*432)*64.0);
+    glRotate(Sin(m*128.0)*360.0, 0.0,1.0,0.0);
+
+    glMaterialfv(GL_FRONT,GL_AMBIENT, @ColorGreen);
+    glMaterialfv(GL_FRONT,GL_DIFFUSE, @ColorGreen);
+    glMaterialfv(GL_FRONT,GL_SHININESS, @Matt);
+
+    for f := Low(Models[model].Faces) to High(Models[model].Faces) do
+    begin
+      glBegin(GL_TRIANGLES);
+        Normal := Models[model].Faces[f].Normal;
+        glNormal3f(Normal.X, Normal.Y, Normal.Z);
+        Face := Models[model].Faces[f];
+        glColor3f(0.5,0.5,0.5);
+        for j := 1 to 3 do
+        begin
+          Vert := Models[model].Vertices[Face.Vec3[j]-1];
+          glVertex3f(Vert.X,Vert.Y,Vert.Z);
+        end;
+      glEnd;
+    end;
+
     glPopMatrix();
   end;
 end;

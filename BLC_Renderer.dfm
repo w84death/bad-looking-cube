@@ -1,6 +1,6 @@
 object FormDemo: TFormDemo
-  Left = 116
-  Top = 29
+  Left = 113
+  Top = 108
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Demo'
