@@ -377,7 +377,7 @@ begin
   RenderModel(Scene.Skybox);
   glDepthMask(GL_TRUE);
   glEnable(GL_LIGHTING);
-  
+
   if Scene.Fog.Enabled then
     glEnable(GL_FOG);
 
