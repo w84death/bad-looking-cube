@@ -13,6 +13,10 @@ type
 
   TMatrix4 = array[0..3, 0..3] of GLfloat;
 
+  TVector3 = record
+    X, Y, Z: GLfloat;
+  end;
+
   TVertex = record
     X, Y, Z: GLfloat;
     Color: TColor;
@@ -39,7 +43,7 @@ type
 
   TCamera = record
     X, Y, Z: GLfloat;
-    LookAt:  TVertex;
+    Direction:  GLfloat;
     Lens: GLfloat;
   end;
 
@@ -79,6 +83,8 @@ type
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure HandleResize(Width, Height: Integer);
+    procedure FormResize(Sender: TObject);
     private
       procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     public
@@ -88,7 +94,9 @@ type
 
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
 
-
+const
+  CameraNear: Double = 0.2;
+  CameraFar: Double = 350;
 
 var
   FormDemo: TFormDemo;
@@ -262,7 +270,7 @@ end;
   _X: Integer = 0;_VAL1: Integer = 0;
   _Y: Integer = 1;_VAL2: Integer = 1;
   _Z: Integer = 2;_VAL3: Integer = 2;
-  _RX: Integer = 3;_R: Integer = 63;
+  _RX: Integer = 3;_R: Integer = 6;_VAL4: Integer = 6;
   _RY: Integer = 4;_G: Integer = 4;
   _RZ: Integer = 5;_B: Integer = 5;
 var
@@ -291,15 +299,12 @@ end;
       (Screenplay[Prev].Action = 'camera') and
       (Screenplay[Prev].Name = 'pos') then
     begin
-
-            Pos := CalcPos(Screenplay[Prev].Timestamp,Screenplay[Next].Timestamp,DemoTime);
-            Scene.Camera.X := Lerp(Screenplay[Prev].Params[_X],Screenplay[Next].Params[_X],Pos);
-            Scene.Camera.Y := Lerp(Screenplay[Prev].Params[_Y],Screenplay[Next].Params[_Y],Pos);
-            Scene.Camera.Z := Lerp(Screenplay[Prev].Params[_Z],Screenplay[Next].Params[_Z],Pos);
-            Scene.Camera.LookAt.X := Lerp(Screenplay[Prev].Params[_RX],Screenplay[Next].Params[_RX],Pos);
-            Scene.Camera.LookAt.Y := Lerp(Screenplay[Prev].Params[_RY],Screenplay[Next].Params[_RY],Pos);
-            Scene.Camera.LookAt.Z := Lerp(Screenplay[Prev].Params[_RZ],Screenplay[Next].Params[_RZ],Pos);
+      Pos := CalcPos(Screenplay[Prev].Timestamp,Screenplay[Next].Timestamp,DemoTime);
 
+      Scene.Camera.X := Lerp(Screenplay[Prev].Params[_X],Screenplay[Next].Params[_X],Pos);
+      Scene.Camera.Y := Lerp(Screenplay[Prev].Params[_Y],Screenplay[Next].Params[_Y],Pos);
+      Scene.Camera.Z := Lerp(Screenplay[Prev].Params[_Z],Screenplay[Next].Params[_Z],Pos);
+      Scene.Camera.Direction := Lerp(Screenplay[Prev].Params[_RY],Screenplay[Next].Params[_RY],Pos);
     end;
   end;
 end;
@@ -313,7 +318,19 @@ var
   Normal: TVertex;
   Face: TFace;
   Model: TModel;
+  CameraTarget: TVector3;
 
+function CalculateLookAtTarget(Direction: GLfloat): TVector3;
+const
+  DegToRad = Pi / 180.0;
+var
+  RadAngle: GLfloat;
+begin
+  RadAngle := -Direction * DegToRad;
+  Result.X := Sin(RadAngle);
+  Result.Y := 0;
+  Result.Z := Cos(RadAngle);
+end;
 procedure  RenderModel(Model: TModel);
 var
   f,v: Integer;
@@ -344,11 +361,10 @@ begin
   glClearColor(0.2, 0.2, 0.2, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
-
-  gluLookAt(
-    Scene.Camera.X, Scene.Camera.Y, Scene.Camera.Z,
-    Scene.Camera.X+Scene.Camera.LookAt.X,Scene.Camera.Y+Scene.Camera.LookAt.Y,Scene.Camera.Z-1.0,
-      0.0,1.0,0.0);
+  CameraTarget := CalculateLookAtTarget(Scene.Camera.Direction);
+  gluLookAt(Scene.Camera.X, Scene.Camera.Y, Scene.Camera.Z,
+            Scene.Camera.X-CameraTarget.X, Scene.Camera.Y, Scene.Camera.Z-CameraTarget.Z,
+            0, 1, 0);
 
   glDisable(GL_LIGHTING);
   glDepthMask(GL_FALSE);
@@ -408,7 +424,7 @@ const
   _X: Integer = 3;_VAL1: Integer = 3;
   _Y: Integer = 4;_VAL2: Integer = 4;
   _Z: Integer = 5;_VAL3: Integer = 5;
-  _RX: Integer = 6;_R: Integer = 6;
+  _RX: Integer = 6;_R: Integer = 6;_VAL4: Integer = 6;
   _RY: Integer = 7;_G: Integer = 7;
   _RZ: Integer = 8;_B: Integer = 8;
 var
@@ -475,9 +491,7 @@ begin
             Scene.Camera.X := StrToFloat(Fields[_X]);
             Scene.Camera.Y := StrToFloat(Fields[_Y]);
             Scene.Camera.Z := StrToFloat(Fields[_Z]);
-            Scene.Camera.LookAt.X := StrToFloat(Fields[_RX]);
-            Scene.Camera.LookAt.Y := StrToFloat(Fields[_RY]);
-            Scene.Camera.LookAt.Z := StrToFloat(Fields[_RZ]);
+            Scene.Camera.Direction := StrToFloat(Fields[_RY]);
            end;
            if Fields[_PROP] = 'lens' then
             Scene.Camera.Lens := StrToFloat(Fields[_VAL1]);
@@ -585,7 +599,7 @@ begin
   glViewport(0,0,ClientWidth,ClientHeight);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(Scene.Camera.Lens,ClientWidth/ClientHeight, 0.2, 400.0);
+  gluPerspective(Scene.Camera.Lens,ClientWidth/ClientHeight, CameraNear, CameraFar);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glEnable(GL_NORMALIZE);
@@ -638,6 +652,25 @@ end;
 procedure TFormDemo.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   KillDemo();
+end;
+
+
+procedure TFormDemo.HandleResize(Width, Height: Integer);
+begin
+  if Height = 0 then
+    Height := 1;
+
+  glViewport(0, 0, Width, Height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity;
+  gluPerspective(Scene.Camera.Lens,Width / Height, CameraNear, CameraFar);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity;
+end;
+
+procedure TFormDemo.FormResize(Sender: TObject);
+begin
+  HandleResize(ClientWidth, ClientHeight);
 end;
 
 end.

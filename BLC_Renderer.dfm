@@ -1,10 +1,10 @@
 object FormDemo: TFormDemo
-  Left = 113
-  Top = 108
+  Left = 298
+  Top = 213
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Demo'
-  ClientHeight = 400
+  ClientHeight = 360
   ClientWidth = 640
   Color = clBlack
   Ctl3D = False
@@ -483,6 +483,7 @@ object FormDemo: TFormDemo
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnPaint = FormPaint
+  OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

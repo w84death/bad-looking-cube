@@ -1,6 +1,6 @@
 object FormCC: TFormCC
-  Left = 247
-  Top = 795
+  Left = 343
+  Top = 798
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Command & Control'
