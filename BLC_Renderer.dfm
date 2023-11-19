@@ -1,11 +1,11 @@
 object FormDemo: TFormDemo
   Left = 298
   Top = 213
+  Width = 648
+  Height = 387
   BorderIcons = []
-  BorderStyle = bsSingle
+  BorderWidth = 4
   Caption = 'Demo'
-  ClientHeight = 360
-  ClientWidth = 640
   Color = clBlack
   Ctl3D = False
   Font.Charset = DEFAULT_CHARSET

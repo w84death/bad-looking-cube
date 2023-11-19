@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, OpenGL, SysUtils, Variants, Classes, Controls, Forms,
-  ExtCtrls,Messages, Math;
+  ExtCtrls,Messages, Math, DateUtils;
 
 type
   TColor = record
@@ -109,7 +109,8 @@ var
   DC: HDC;
   RC: HGLRC;
   wglSwapIntervalEXT: TWglSwapIntervalEXT;
-
+  LastFrameTime, CurrentTime, FrameTime: TDateTime;
+  
   AmbientLight: array[0..3] of GLfloat = (0.3,0.3,0.5,1.0);
   DiffuseLight: array[0..3] of GLfloat = (1.0,0.9,0.5,1.0);
   LightPosition: array[0..3] of GLfloat = (-15.0,30.0,-10.0,1.0);
@@ -358,6 +359,12 @@ begin
     glPopMatrix();
 end;
 begin
+  CurrentTime := Now;
+  FrameTime := MilliSecondsBetween(CurrentTime, LastFrameTime);
+  LastFrameTime := CurrentTime;
+
+  Caption := Format('FrameTime: %.2fms', [FrameTime]);
+
   glClearColor(0.2, 0.2, 0.2, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
@@ -624,7 +631,7 @@ begin
   glLightfv(GL_LIGHT0, GL_AMBIENT, @Scene.Ambient);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.Sun.Color);
   glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
-
+  LastFrameTime := Now;
 end;
 
 
@@ -663,7 +670,7 @@ begin
   glViewport(0, 0, Width, Height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity;
-  gluPerspective(Scene.Camera.Lens,Width / Height, CameraNear, CameraFar);
+  gluPerspective(Scene.Camera.Lens, Width / Height, CameraNear, CameraFar);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity;
 end;
