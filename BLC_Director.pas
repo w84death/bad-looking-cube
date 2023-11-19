@@ -16,6 +16,13 @@ type
     ButtonRunDemo: TButton;
     ButtonClose: TButton;
     DBGrid1: TDBGrid;
+    GroupCamera: TGroupBox;
+    LabelCamX: TLabel;
+    LabelCamY: TLabel;
+    LabelCamZ: TLabel;
+    ButtonCamSave: TButton;
+    ButtonCamLoad: TButton;
+    Label1: TLabel;
     procedure ButtonCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);

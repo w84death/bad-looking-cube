@@ -1,8 +1,8 @@
 object FormDirector: TFormDirector
-  Left = 285
-  Top = 31
+  Left = 384
+  Top = 262
   Width = 510
-  Height = 389
+  Height = 549
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Director'
   Color = clBlack
@@ -482,7 +482,7 @@ object FormDirector: TFormDirector
   TextHeight = 13
   object GroupApp: TGroupBox
     Left = 0
-    Top = 318
+    Top = 478
     Width = 502
     Height = 44
     Align = alBottom
@@ -499,7 +499,7 @@ object FormDirector: TFormDirector
     ParentFont = False
     TabOrder = 0
     object DBNavigator1: TDBNavigator
-      Left = 0
+      Left = 8
       Top = 16
       Width = 222
       Height = 25
@@ -508,7 +508,7 @@ object FormDirector: TFormDirector
       TabOrder = 1
     end
     object ButtonSave: TButton
-      Left = 352
+      Left = 344
       Top = 16
       Width = 89
       Height = 25
@@ -523,11 +523,11 @@ object FormDirector: TFormDirector
       OnClick = ButtonSaveClick
     end
     object ButtonRunDemo: TButton
-      Left = 240
+      Left = 248
       Top = 16
-      Width = 65
+      Width = 81
       Height = 25
-      Caption = 'OPEN'
+      Caption = 'RESTART'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -538,7 +538,7 @@ object FormDirector: TFormDirector
       OnClick = ButtonRunDemoClick
     end
     object ButtonClose: TButton
-      Left = 440
+      Left = 432
       Top = 16
       Width = 65
       Height = 25
@@ -557,7 +557,7 @@ object FormDirector: TFormDirector
     Left = 0
     Top = 0
     Width = 502
-    Height = 318
+    Height = 437
     Align = alClient
     BorderStyle = bsNone
     Color = clMoneyGreen
@@ -659,6 +659,105 @@ object FormDirector: TFormDirector
         Width = 40
         Visible = True
       end>
+  end
+  object GroupCamera: TGroupBox
+    Left = 0
+    Top = 437
+    Width = 502
+    Height = 41
+    Align = alBottom
+    Caption = 'CAMERA'
+    Color = clBlue
+    Ctl3D = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clYellow
+    Font.Height = -8
+    Font.Name = 'Arial Narrow'
+    Font.Style = [fsBold, fsItalic]
+    ParentColor = False
+    ParentCtl3D = False
+    ParentFont = False
+    TabOrder = 2
+    object LabelCamX: TLabel
+      Left = 8
+      Top = 18
+      Width = 36
+      Height = 15
+      Caption = 'X: 00.00'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object LabelCamY: TLabel
+      Left = 56
+      Top = 18
+      Width = 35
+      Height = 15
+      Caption = 'Y: 00.00'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clLime
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object LabelCamZ: TLabel
+      Left = 104
+      Top = 18
+      Width = 35
+      Height = 15
+      Caption = 'Z: 00.00'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSkyBlue
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Label1: TLabel
+      Left = 176
+      Top = 18
+      Width = 65
+      Height = 15
+      Caption = 'Dir: 00.00'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clLime
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object ButtonCamSave: TButton
+      Left = 344
+      Top = 16
+      Width = 89
+      Height = 25
+      Caption = 'Insert PosRot'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+    end
+    object ButtonCamLoad: TButton
+      Left = 432
+      Top = 16
+      Width = 65
+      Height = 25
+      Caption = 'Load'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+    end
   end
   object DataSource1: TDataSource
     DataSet = ClientDataSet1

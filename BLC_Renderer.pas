@@ -83,8 +83,10 @@ type
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure HandleResize(Width, Height: Integer);
+    procedure ResizeViewport();
     procedure FormResize(Sender: TObject);
+    procedure CenterWindow();
+    procedure FormCreate(Sender: TObject);
     private
       procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     public
@@ -95,8 +97,8 @@ type
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
 
 const
-  CameraNear: Double = 0.2;
-  CameraFar: Double = 350;
+  CameraNear: Double = 0.1;
+  CameraFar: Double = 150;
 
 var
   FormDemo: TFormDemo;
@@ -110,11 +112,7 @@ var
   RC: HGLRC;
   wglSwapIntervalEXT: TWglSwapIntervalEXT;
   LastFrameTime, CurrentTime, FrameTime: TDateTime;
-  
-  AmbientLight: array[0..3] of GLfloat = (0.3,0.3,0.5,1.0);
-  DiffuseLight: array[0..3] of GLfloat = (1.0,0.9,0.5,1.0);
-  LightPosition: array[0..3] of GLfloat = (-15.0,30.0,-10.0,1.0);
-
+  OldWindowStyle: Longint;
   FogColor: array[0..3] of GLfloat = (0.6,0.6,0.6,1.0);
 
 implementation
@@ -177,11 +175,10 @@ begin
   end;
   Scene.Camera.Z := Scene.Camera.Z + MovementVector.Z;
 
-  Scene.Sun.X := 15*Sin(DemoTime/4);
-  Scene.Sun.Z := 7.5*Cos(DemoTime/4);
   if DemoRunning then
     Direct();
   Render();
+
   Invalidate;
 end;
 
@@ -312,6 +309,8 @@ end;
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
 
+
+
 procedure TFormDemo.Render();
 var
   m,c: Integer;
@@ -320,7 +319,6 @@ var
   Face: TFace;
   Model: TModel;
   CameraTarget: TVector3;
-
 function CalculateLookAtTarget(Direction: GLfloat): TVector3;
 const
   DegToRad = Pi / 180.0;
@@ -358,14 +356,14 @@ begin
     end;
     glPopMatrix();
 end;
+
 begin
   CurrentTime := Now;
   FrameTime := MilliSecondsBetween(CurrentTime, LastFrameTime);
   LastFrameTime := CurrentTime;
-
   Caption := Format('FrameTime: %.2fms', [FrameTime]);
 
-  glClearColor(0.2, 0.2, 0.2, 1.0);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
   CameraTarget := CalculateLookAtTarget(Scene.Camera.Direction);
@@ -412,6 +410,23 @@ begin
     Ord('E'): MovementVector.Y := MaxSpeed;
     Ord('A'): MovementVector.X := -MaxSpeed;
     Ord('D'): MovementVector.X := MaxSpeed;
+    VK_F11:
+     begin
+    if WindowState = wsNormal then
+    begin
+      SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) and not WS_CAPTION);
+      WindowState := wsMaximized;
+      SetBounds(0, 0, Screen.Width, Screen.Height);
+    end
+    else
+    begin
+      SetWindowLong(Handle, GWL_STYLE, OldWindowStyle);
+      WindowState := wsNormal;
+      Width := 640;
+      Height := 400;
+      CenterWindow;
+    end;
+  end;
   end;
 end;
 
@@ -587,6 +602,7 @@ begin
 
   DC := GetDC(Handle);
   FillChar(PixelFormat, SizeOf(PixelFormat), 0);
+
   with PixelFormat do
     begin
       nSize := SizeOf(PixelFormat);
@@ -602,8 +618,7 @@ begin
   RC := wglCreateContext(DC);
   wglMakeCurrent(DC, RC);
   InitVSync;
-
-  glViewport(0,0,ClientWidth,ClientHeight);
+  ResizeViewport;
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(Scene.Camera.Lens,ClientWidth/ClientHeight, CameraNear, CameraFar);
@@ -661,23 +676,48 @@ begin
   KillDemo();
 end;
 
-
-procedure TFormDemo.HandleResize(Width, Height: Integer);
+procedure TFormDemo.ResizeViewport();
+const
+  DesiredAspectRatio: GLfloat = 320.0 / 200.0;
+var
+  AspectRatio, ViewportWidth, ViewportHeight: GLfloat;
+  ViewportX, ViewportY: Integer;
 begin
-  if Height = 0 then
-    Height := 1;
+  AspectRatio := Width / Height;
 
-  glViewport(0, 0, Width, Height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity;
-  gluPerspective(Scene.Camera.Lens, Width / Height, CameraNear, CameraFar);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity;
+  if AspectRatio > DesiredAspectRatio then
+  begin
+    ViewportHeight := Height;
+    ViewportWidth := Height * DesiredAspectRatio;
+    ViewportX := Round((Width - ViewportWidth) / 2);
+    ViewportY := 0;
+  end
+  else
+  begin
+    ViewportWidth := Width;
+    ViewportHeight := Width / DesiredAspectRatio;
+    ViewportX := 0;
+    ViewportY := Round((Height - ViewportHeight) / 2);
+  end;
+
+  glViewport(ViewportX, ViewportY, Round(ViewportWidth), Round(ViewportHeight));
 end;
 
 procedure TFormDemo.FormResize(Sender: TObject);
 begin
-  HandleResize(ClientWidth, ClientHeight);
+  ResizeViewport;
+end;
+
+procedure TFormDemo.CenterWindow();
+begin;
+  Left := (Screen.Width - Width) div 2;
+  Top := (Screen.Height - Height) div 2;
+end;
+
+procedure TFormDemo.FormCreate(Sender: TObject);
+begin
+  CenterWindow;
+  OldWindowStyle := GetWindowLong(Handle, GWL_STYLE);
 end;
 
 end.

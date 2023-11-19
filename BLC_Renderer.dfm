@@ -1,13 +1,12 @@
 object FormDemo: TFormDemo
   Left = 298
   Top = 213
-  Width = 648
-  Height = 387
+  Width = 640
+  Height = 400
   BorderIcons = []
-  BorderWidth = 4
+  BorderWidth = 16
   Caption = 'Demo'
   Color = clBlack
-  Ctl3D = False
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -480,6 +479,7 @@ object FormDemo: TFormDemo
     000080010000C0010000C0010000E0010000F01F0000F9FF0000FFFF0000}
   OldCreateOrder = False
   OnClose = FormClose
+  OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnPaint = FormPaint
@@ -489,7 +489,7 @@ object FormDemo: TFormDemo
   TextHeight = 13
   object Timer1: TTimer
     Tag = 9
-    Interval = 16
+    Interval = 8
     OnTimer = Timer1Timer
     Left = 8
     Top = 8

@@ -7,7 +7,6 @@ uses
 
 type
   TFormAbout = class(TForm)
-    ImageBackground: TImage;
     Label1: TLabel;
     GroupCredits: TGroupBox;
     Label2: TLabel;

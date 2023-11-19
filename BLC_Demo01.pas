@@ -19,18 +19,11 @@ type
     GroupTimer: TGroupBox;
     LabelTimeStamp: TLabel;
     ButtonCloseDermo: TButton;
-    Image1: TImage;
     TimerDemo: TTimer;
     GroupDemo: TGroupBox;
     GroupApp: TGroupBox;
     ButtonAbout: TButton;
-    GroupCamera: TGroupBox;
-    ButtonCamSave: TButton;
     TrackBarDemoTime: TTrackBar;
-    ButtonCamLoad: TButton;
-    LabelCamX: TLabel;
-    LabelCamY: TLabel;
-    LabelCamZ: TLabel;
     ButtonShowDirector: TButton;
     procedure ButtonTerminateClick(Sender: TObject);
     procedure ButtonRunDemoClick(Sender: TObject);
@@ -70,10 +63,10 @@ end;
 
 procedure TFormCC.OpenDemoWindow();
 begin
+  FormDemo.Close;
   FormDemo.Show;
   FormDemo.InitDemo;
   GroupPlayback.Visible := true;
-  GroupCamera.Visible := true;
   TrackBarDemoTime.Visible := true;
   GroupTimer.Visible := true;
   DemoTime := 0.0;
@@ -91,7 +84,6 @@ procedure TFormCC.ButtonCloseDermoClick(Sender: TObject);
 begin
   FormDemo.Close;
   GroupPlayback.Visible := false;
-  GroupCamera.Visible := false;
   TrackBarDemoTime.Visible := false;
   GroupTimer.Visible := false;
   DemoTime := 0.0;
