@@ -46,6 +46,8 @@ type
     procedure TrackBarDemoTimeChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ButtonShowDirectorClick(Sender: TObject);
+  public
+    procedure OpenDemoWindow();
   end;
 
 const
@@ -53,7 +55,7 @@ const
   SeekTime: Double = 2.0;
 var
   FormCC: TFormCC;
-  DemoTime: Double;
+  ActiveLine: Double;
   CamSpeed: Double = 1.0;
 implementation
 
@@ -66,9 +68,10 @@ begin
   Application.Terminate;
 end;
 
-procedure TFormCC.ButtonRunDemoClick(Sender: TObject);
+procedure TFormCC.OpenDemoWindow();
 begin
   FormDemo.Show;
+  FormDemo.InitDemo;
   GroupPlayback.Visible := true;
   GroupCamera.Visible := true;
   TrackBarDemoTime.Visible := true;
@@ -77,6 +80,11 @@ begin
   TimerDemo.Enabled := true;
   BLC_Renderer.DemoRunning := true;
   RefreshTimer;
+end;
+
+procedure TFormCC.ButtonRunDemoClick(Sender: TObject);
+begin
+  OpenDemoWindow;
 end;
 
 procedure TFormCC.ButtonCloseDermoClick(Sender: TObject);

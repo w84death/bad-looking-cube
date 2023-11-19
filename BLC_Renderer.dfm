@@ -479,10 +479,11 @@ object FormDemo: TFormDemo
     0000F01F0000F00F0000E0070000E0070000C0030000C0030000800300008001
     000080010000C0010000C0010000E0010000F01F0000F9FF0000FFFF0000}
   OldCreateOrder = False
-  OnCreate = FormCreate
+  OnClose = FormClose
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnPaint = FormPaint
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Timer1: TTimer

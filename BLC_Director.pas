@@ -10,24 +10,16 @@ type
   TFormDirector = class(TForm)
     DBNavigator1: TDBNavigator;
     GroupApp: TGroupBox;
-    ButtonClose: TButton;
-    Button3: TButton;
-    GroupBox1: TGroupBox;
-    Button1: TButton;
-    Button2: TButton;
-    GroupBox2: TGroupBox;
-    Button5: TButton;
-    Image1: TImage;
-    DBGrid1: TDBGrid;
     DataSource1: TDataSource;
     ClientDataSet1: TClientDataSet;
     ButtonSave: TButton;
-    Button6: TButton;
-    ComboBox1: TComboBox;
+    ButtonRunDemo: TButton;
+    ButtonClose: TButton;
+    DBGrid1: TDBGrid;
     procedure ButtonCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);
-    procedure DataSource1UpdateData(Sender: TObject);
+    procedure ButtonRunDemoClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -38,6 +30,8 @@ var
   FormDirector: TFormDirector;
 
 implementation
+
+uses BLC_Demo01;
 
 {$R *.dfm}
 
@@ -75,7 +69,6 @@ begin
     Fields.Free;
     CloseFile(CSVFile);
   end;
-  ButtonSave.Visible := false;
 end;
 
 procedure TFormDirector.ButtonSaveClick(Sender: TObject);
@@ -100,12 +93,11 @@ begin
     ClientDataSet1.Next;
   end;
   CloseFile(CSVFile);
-  ButtonSave.Visible := false;
 end;
 
-procedure TFormDirector.DataSource1UpdateData(Sender: TObject);
+procedure TFormDirector.ButtonRunDemoClick(Sender: TObject);
 begin
-  ButtonSave.Visible := true;
+  FormCC.OpenDemoWindow;
 end;
 
 end.

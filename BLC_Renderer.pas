@@ -4,88 +4,109 @@ interface
 
 uses
   Windows, OpenGL, SysUtils, Variants, Classes, Controls, Forms,
-  ExtCtrls,Messages;
+  ExtCtrls,Messages, Math;
 
 type
   TColor = record
     R, G, B: GLfloat;
   end;
 
+  TMatrix4 = array[0..3, 0..3] of GLfloat;
+
   TVertex = record
     X, Y, Z: GLfloat;
+    Color: TColor;
   end;
 
   TFace = record
-    Vec3: array[1..3] of Integer;
-    Normal: TVertex;
+    Vertices: array[1..3] of Integer;
+    Normals: array[1..3] of Integer;
+  end;
+
+  TModelClone = record
+    Position: TVertex;
+    Rotation: TVertex;
   end;
 
   TModel = record
     Vertices: array of TVertex;
+    Normals: array of TVertex;
     Faces: array of TFace;
     Position: TVertex;
     Rotation: TVertex;
-    Material: Integer;
+    Clones: array of TModelClone;
   end;
 
   TCamera = record
     X, Y, Z: GLfloat;
-    AngleX:  GLfloat;
-    AngleY:  GLfloat;
-    AngleZ:  GLfloat;
+    LookAt:  TVertex;
+    Lens: GLfloat;
+  end;
+
+  TFog = record
+    Enabled: Boolean;
+    Color: TColor;
+    Density: GLfloat;
+  end;
+
+  TScene = record
+    Skybox: TModel;
+    Sun: TVertex;
+    Ambient: TColor;
+    Terrain: TModel;
+    Camera: TCamera;
+    Fog: TFog;
+    Models: array of TModel;
+  end;
+
+  TScreenplayLine = record
+    Timestamp: GLfloat;
+    Action: String;
+    Name: String;
+    Params: array[0..5] of glFloat;
   end;
 
   TFormDemo = class(TForm)
     Timer1: TTimer;
     procedure Timer1Timer(Sender: TObject);
+    procedure Direct();
     procedure Render();
     function ReadOBJFile(const FileName: string): TModel;
-    procedure FormCreate(Sender: TObject);
+    procedure LoadCSVFile();
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormPaint(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     private
       procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     public
-    { Public declarations }
-    protected
-      //procedure Paint; override;
+      procedure InitDemo();
+      procedure KillDemo();
    end;
 
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
 
+
+
 var
   FormDemo: TFormDemo;
   DemoTime: Double = 0.0;
+  Screenplay: array of TScreenplayLine;
+  ActiveLine: Integer = 0;
   DemoRunning: Boolean = false;
   MovementVector: TVertex = (X:0.0;Y:0.0;Z:0.0);
-  Camera: TCamera;
-  Models: array [0..13] of TModel;
+  Scene: TScene;
   DC: HDC;
   RC: HGLRC;
   wglSwapIntervalEXT: TWglSwapIntervalEXT;
 
-  JeepPosition: TVertex = (X:1.0;Y:0.0;Z:20.0);
+  AmbientLight: array[0..3] of GLfloat = (0.3,0.3,0.5,1.0);
+  DiffuseLight: array[0..3] of GLfloat = (1.0,0.9,0.5,1.0);
+  LightPosition: array[0..3] of GLfloat = (-15.0,30.0,-10.0,1.0);
 
-  Framebuffer: GLuint;
-  Texture: GLuint;
-  Width, Height: Integer;
-
-  AmbientLight: array[0..3] of GLfloat = (0.2,0.2,0.2,1.0);
-  DiffuseLight: array[0..3] of GLfloat = (0.7,0.6,0.5,1.0);
-  SpecularLight: array[0..3] of GLfloat = (0.8,0.754,0.7,1.0);
-  LightPosition: array[0..3] of GLfloat = (-5.0,5.0,0.0,1.0);
-
-  Specular: array[0..3] of GLfloat = (0.5,0.5,0.5,1.0);
-  EmissionOff: array[0..3] of GLfloat = (0.0,0.0,0.0,1.0);
-  Matt: array[0..3] of GLfloat = (0.2,0.2,0.2,1.0);
-  Shininess:  array[0..3] of GLfloat = (1.0,1.0,1.0,1.0);
-  Color0: array[0..3] of GLfloat = (0.1,0.1,0.1,1.0);
-  Color1: array[0..3] of GLfloat = (0.0,0.1,0.45,1.0);
-  Color2: array[0..3] of GLfloat = (0.7,0.2,0.4,1.0);
-  ColorGreen: array[0..3] of GLfloat = (0.1,0.2,0.0,1.0);
-  FogColor: array[0..3] of GLfloat = (0.1,0.1,0.1,1.0);
+  FogColor: array[0..3] of GLfloat = (0.6,0.6,0.6,1.0);
 
 implementation
 
@@ -120,7 +141,7 @@ begin
     MovementVector.X := MovementVector.X + MovementReduction;
     if MovementVector.X > 0 then MovementVector.X := 0;
   end;
-  Camera.X := Camera.X + MovementVector.X;
+  Scene.Camera.X := Scene.Camera.X + MovementVector.X;
 
   if MovementVector.Y > 0 then
   begin
@@ -132,7 +153,7 @@ begin
     MovementVector.Y := MovementVector.Y + MovementReduction;
     if MovementVector.Y > 0 then MovementVector.Y:= 0;
   end;
-  Camera.Y := Camera.Y + MovementVector.Y;
+  Scene.Camera.Y := Scene.Camera.Y + MovementVector.Y;
 
 
   if MovementVector.Z > 0 then
@@ -145,75 +166,34 @@ begin
     MovementVector.Z := MovementVector.Z + MovementReduction;
     if MovementVector.Z > 0 then MovementVector.Z:= 0;
   end;
-  Camera.Z := Camera.Z + MovementVector.Z;
+  Scene.Camera.Z := Scene.Camera.Z + MovementVector.Z;
 
- if DemoRunning then
- begin
-  Models[0].Rotation.Y := DemoTime*7.0;
-  Models[4].Position.Y := 0.2+Sin(DemoTime)*0.2;
-  Models[5].Position.Y := 0.2+Sin(DemoTime+3.0)*0.2;
-  Models[6].Position.Y := 0.2+Sin(DemoTime+4.0)*0.2;
-  Models[4].Rotation.Y := Sin(DemoTime)*2.0;
-  Models[4].Rotation.X := Sin(DemoTime)*2.0;
-  Models[5].Rotation.Y := Sin(DemoTime+6)*2.0;
-  Models[5].Rotation.X := Sin(DemoTime+2)*2.0;
-  Models[6].Rotation.Y := Sin(DemoTime+8)*2.0;
-  Models[6].Rotation.X := Sin(DemoTime+9)*2.0;
-  Models[7].Rotation.Y := DemoTime*24.0;
-
-  JeepPosition.Z := 30.0 - 20.0*Sin(DemoTime/16);
-  JeepPosition.X := 1.0 - Sin(DemoTime/8)*1.5;
-  Models[10].Position := JeepPosition;
-  Models[10].Rotation.Y := Sin(DemoTime/8)*6.0;
-  Models[10].Rotation.Z := Sin(DemoTime/2)*1.0;
- end;
-
- Render();
- Invalidate;
+  Scene.Sun.X := 15*Sin(DemoTime/4);
+  Scene.Sun.Z := 7.5*Cos(DemoTime/4);
+  if DemoRunning then
+    Direct();
+  Render();
+  Invalidate;
 end;
 
 
 function TFormDemo.ReadOBJFile(const FileName: string): TModel;
 var
   FileLines: TStringList;
-  i: Integer;
+  i,f: Integer;
   Line: string;
   Parts: TStringList;
+  FaceParts: TStringList;
   Vertex: TVertex;
+  Normal: TVertex;
   Face: TFace;
   Model: TModel;
-
-function CalculateNormal(V1,V2,V3: TVertex): TVertex;
-var
-  Edge1, Edge2, Normal: TVertex;
-  Length: GLfloat;
-begin
-  Edge1.X := V2.X - V1.X;
-  Edge1.Y := V2.Y - V1.Y;
-  Edge1.Z := V2.Z - V1.Z;
-
-  Edge2.X := V3.X - V1.X;
-  Edge2.Y := V3.Y - V1.Y;
-  Edge2.Z := V3.Z - V1.Z;
-
-  Normal.X := Edge1.Y * Edge2.Z - Edge1.Z * Edge2.y;
-  Normal.Y := Edge1.Z * Edge2.X - Edge1.X * Edge2.Z;
-  Normal.Z := Edge1.X * Edge2.Y - Edge1.Y * Edge2.X;
-
-  Length := sqrt(Normal.X*Normal.X+Normal.Y*Normal.Y+Normal.Z*Normal.Z);
-  if Length <> 0 then
-  begin
-    Normal.X := Normal.X / Length;
-    Normal.Y := Normal.Y / Length;
-    Normal.Z := Normal.Z / Length;
-  end;
-
-  Result := Normal;
-end;
-
 begin
   FileLines := TStringList.Create;
   Parts := TStringList.Create;
+  Parts.Delimiter := ' ';
+  FaceParts := TStringList.Create;
+  FaceParts.Delimiter := '/';
 
   try
     FileLines.LoadFromFile(FileName);
@@ -221,37 +201,47 @@ begin
     for i := 0 to FileLines.Count - 1 do
     begin
       Line := Trim(FileLines[i]);
-      Parts.Delimiter := ' ';
       Parts.DelimitedText := Line;
 
-      if (Parts.Count = 4) and (Parts[0] = 'v') then
+      if (Parts.Count = 7) and (Parts[0] = 'v') then
       begin
         Vertex.X := StrToFloat(Parts[1]);
         Vertex.Y := StrToFloat(Parts[2]);
         Vertex.Z := StrToFloat(Parts[3]);
+        Vertex.Color.R := StrToFloat(Parts[4]);
+        Vertex.Color.G := StrToFloat(Parts[5]);
+        Vertex.Color.B := StrToFloat(Parts[6]);
+
         SetLength(Model.Vertices, Length(Model.Vertices) + 1);
         Model.Vertices[High(Model.Vertices)] := Vertex;
       end;
 
+      if (Parts.Count = 4) and (Parts[0] = 'vn') then
+      begin
+        Normal.X := StrToFloat(Parts[1]);
+        Normal.Y := StrToFloat(Parts[2]);
+        Normal.Z := StrToFloat(Parts[3]);
+
+        SetLength(Model.Normals, Length(Model.Normals) + 1);
+        Model.Normals[High(Model.Normals)] := Normal;
+      end;
+
       if (Parts.Count = 4) and (Parts[0] = 'f') then
       begin
-        Face.Vec3[1] := StrToInt(Parts[1]);
-        Face.Vec3[2] := StrToInt(Parts[2]);
-        Face.Vec3[3] := StrToInt(Parts[3]);
+        for f := 1 to 3 do
+        begin
+          FaceParts.DelimitedText := StringReplace(Parts[f],'//','/',[rfReplaceAll]);
+          Face.Vertices[f] := StrToInt(FaceParts[0]);
+          Face.Normals[f] := StrToInt(FaceParts[1]);
+        end;
+
         SetLength(Model.Faces, Length(Model.Faces) + 1);
         Model.Faces[High(Model.Faces)] := Face;
       end;
     end;
-
-    for i := 0 to High(Model.Faces) do
-    begin
-      Model.Faces[i].Normal := CalculateNormal(
-          Model.Vertices[Model.Faces[i].Vec3[1]-1],
-          Model.Vertices[Model.Faces[i].Vec3[2]-1],
-          Model.Vertices[Model.Faces[i].Vec3[3]-1]);
-    end;
   finally
     Parts.Free;
+    FaceParts.Free;
     FileLines.Free;
   end;
 
@@ -262,49 +252,317 @@ begin
   Model.Rotation.X := 0.0;
   Model.Rotation.Y := 0.0;
   Model.Rotation.Z := 0.0;
-  Model.Material := 0;
 
   Result := Model;
 end;
 
-procedure TFormDemo.FormCreate(Sender: TObject);
+
+procedure TFormDemo.Direct();
+const
+  _X: Integer = 0;_VAL1: Integer = 0;
+  _Y: Integer = 1;_VAL2: Integer = 1;
+  _Z: Integer = 2;_VAL3: Integer = 2;
+  _RX: Integer = 3;_R: Integer = 63;
+  _RY: Integer = 4;_G: Integer = 4;
+  _RZ: Integer = 5;_B: Integer = 5;
+var
+  l: Integer;
+  Pos: glFloat;
+  Prev, Next: Integer;
+function Lerp(A, B, T: glFloat): glFloat;
+begin
+  Result := A + (B - A) * T;
+end;
+function CalcPos(A,B,T: glFloat): glFloat;
+begin
+  Result := 0;
+  if A<>B then
+    Result := (T-A)/(B-A);
+  Result := Max(0.0,Min(Result,1.0));
+end;
+begin
+  Prev := 0;
+  for l := 1 to High(Screenplay) do
+  begin
+    if Screenplay[l].Action = 'camera' then
+      Prev := l;
+    Next := l+1;
+    if (DemoTime >= Screenplay[Prev].Timestamp) and
+      (Screenplay[Prev].Action = 'camera') and
+      (Screenplay[Prev].Name = 'pos') then
+    begin
+
+            Pos := CalcPos(Screenplay[Prev].Timestamp,Screenplay[Next].Timestamp,DemoTime);
+            Scene.Camera.X := Lerp(Screenplay[Prev].Params[_X],Screenplay[Next].Params[_X],Pos);
+            Scene.Camera.Y := Lerp(Screenplay[Prev].Params[_Y],Screenplay[Next].Params[_Y],Pos);
+            Scene.Camera.Z := Lerp(Screenplay[Prev].Params[_Z],Screenplay[Next].Params[_Z],Pos);
+            Scene.Camera.LookAt.X := Lerp(Screenplay[Prev].Params[_RX],Screenplay[Next].Params[_RX],Pos);
+            Scene.Camera.LookAt.Y := Lerp(Screenplay[Prev].Params[_RY],Screenplay[Next].Params[_RY],Pos);
+            Scene.Camera.LookAt.Z := Lerp(Screenplay[Prev].Params[_RZ],Screenplay[Next].Params[_RZ],Pos);
+
+    end;
+  end;
+end;
+
+//    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
+
+procedure TFormDemo.Render();
 var
-  PixelFormat: TPixelFormatDescriptor;
-  FormatIndex: integer;
-procedure LoadModel(Id: Integer; Name: string; X,Y,Z: Double; Material: Integer);
+  m,c: Integer;
+  Vert: TVertex;
+  Normal: TVertex;
+  Face: TFace;
+  Model: TModel;
+
+procedure  RenderModel(Model: TModel);
+var
+  f,v: Integer;
+begin
+  glPushMatrix();
+    glTranslatef(Model.Position.X, Model.Position.Y, Model.Position.Z);
+    glRotatef(Model.Rotation.X, 1.0,0.0,0.0);
+    glRotatef(Model.Rotation.Y, 0.0,1.0,0.0);
+    glRotatef(Model.Rotation.Z, 0.0,0.0,1.0);
+
+    for f := Low(Model.Faces) to High(Model.Faces) do
+    begin
+      glBegin(GL_TRIANGLES);
+        Face := Model.Faces[f];
+        for v := 1 to 3 do
+        begin
+          Vert := Model.Vertices[Face.Vertices[v]-1];
+          Normal := Model.Normals[Face.Normals[v]-1];
+          glColor3f(Vert.Color.R,Vert.Color.G,Vert.Color.B);
+          glNormal3f(Normal.X,Normal.Y,Normal.Z);
+          glVertex3f(Vert.X,Vert.Y,Vert.Z);
+        end;
+      glEnd;
+    end;
+    glPopMatrix();
+end;
+begin
+  glClearColor(0.2, 0.2, 0.2, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity();
+
+  gluLookAt(
+    Scene.Camera.X, Scene.Camera.Y, Scene.Camera.Z,
+    Scene.Camera.X+Scene.Camera.LookAt.X,Scene.Camera.Y+Scene.Camera.LookAt.Y,Scene.Camera.Z-1.0,
+      0.0,1.0,0.0);
+
+  glDisable(GL_LIGHTING);
+  glDepthMask(GL_FALSE);
+  glDisable(GL_FOG);
+  RenderModel(Scene.Skybox);
+  glDepthMask(GL_TRUE);
+  glEnable(GL_LIGHTING);
+  
+  if Scene.Fog.Enabled then
+    glEnable(GL_FOG);
+
+  glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
+
+  RenderModel(Scene.Terrain);
+  for m := Low(Scene.Models) to High(Scene.Models) do
+  begin
+    Model := Scene.Models[m];
+    RenderModel(Model);
+    for c := Low(Model.Clones) to High(Model.Clones) do
+    begin
+      Model.Position := Model.Clones[c].Position;
+      Model.Rotation := Model.Clones[c].Rotation;
+      RenderModel(Model);
+    end
+  end;
+end;
+
+
+procedure TFormDemo.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+const
+  MaxSpeed: Double = 0.15;
+begin
+  case Key of
+    Ord('W'): MovementVector.Z := -MaxSpeed;
+    Ord('S'): MovementVector.Z := MaxSpeed;
+    Ord('Q'): MovementVector.Y := -MaxSpeed;
+    Ord('E'): MovementVector.Y := MaxSpeed;
+    Ord('A'): MovementVector.X := -MaxSpeed;
+    Ord('D'): MovementVector.X := MaxSpeed;
+  end;
+end;
+
+procedure TFormDemo.FormPaint(Sender: TObject);
+begin
+  SwapBuffers(DC);
+end;
+
+
+//    ---   ---   ---   ---   ---   ---   ---   ---   LOAD CSV FILE
+
+procedure TFormDemo.LoadCSVFile();
+const
+  _TIMESTAMP: Integer = 0;
+  _ACTION: Integer = 1;
+  _PROP: Integer = 2;_NAME: Integer = 2;
+  _X: Integer = 3;_VAL1: Integer = 3;
+  _Y: Integer = 4;_VAL2: Integer = 4;
+  _Z: Integer = 5;_VAL3: Integer = 5;
+  _RX: Integer = 6;_R: Integer = 6;
+  _RY: Integer = 7;_G: Integer = 7;
+  _RZ: Integer = 8;_B: Integer = 8;
+var
+  CSVFile: TextFile;
+  Line: String;
+  Fields: TStringList;
+  Clone: TModelClone;
+  LastModel: Integer;
+  ScreenplayLine: TScreenplayLine;
+  f: Integer;
+
+//    ---   ---   ---   ---   ---   ---   ---   ---   LOAD MODEL
+function LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double): TModel;
 var
   Model: TModel;
 begin
-  Model := ReadOBJFile('Models/'+Name);
+  Model := ReadOBJFile('Models/'+Name+'.obj');
   Model.Position.X := X;
   Model.Position.Y := Y;
   Model.Position.Z := Z;
-  Model.Material := Material;
-  Models[Id] := Model;
+  Model.Rotation.X := RX;
+  Model.Rotation.Y := RY;
+  Model.Rotation.Z := RZ;
+  Result := Model;
 end;
 begin
-  LoadModel(0,'P1X_logo.obj', -3.0,2.0,-1.0,  3);
-  LoadModel(1,'terrain.obj',    0.0,0.0,0.0,    1);
-  LoadModel(2,'room.obj',     0.0,0.0,0.0,    1);
-  LoadModel(3,'desk.obj',     0.0,0.0,0.0,    2);
-  LoadModel(4,'pc.obj',       0.0,0.0,0.0,    2);
-  LoadModel(5,'kbd.obj',      0.0,0.0,0.0,    2);
-  LoadModel(6,'monitor.obj',  0.0,0.0,0.0,    2);
-  LoadModel(7,'fan.obj',      0.0,3.0,0.0,    0);
-  LoadModel(8,'shelf.obj',    0.0,0.0,0.0,    0);
-  LoadModel(9,'sofa.obj',     0.0,0.0,0.0,    0);
+  AssignFile(CSVFile, 'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\screenplay.csv');
+  Reset(CSVFile);
+  Fields := TStringList.Create;
+  Fields.Delimiter := ',';
+  try
+    while not Eof(CSVFile) do
+    begin
+      ReadLn(CSVFile, Line);
+      Fields.DelimitedText := Line;
 
-  LoadModel(10,'jeep.obj',    JeepPosition.X,
-                              JeepPosition.Y,
-                              JeepPosition.Z,    1);
-  LoadModel(11,'road.obj',    0.0,0.0,0.0,    1);
+      if StrToFloat(Fields[_TIMESTAMP]) = 0 then
+      begin
+        if Fields[_ACTION] = 'load' then
+        begin
+          SetLength(Scene.Models, Length(Scene.Models) + 1);
+          Scene.Models[High(Scene.Models)] := LoadModel(
+            Fields[_NAME],
+            StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
+        end;
+        if Fields[_ACTION] = 'clone' then
+        begin
+          LastModel := High(Scene.Models);
+          Clone.Position.X := StrToFloat(Fields[_X]);
+          Clone.Position.Y := StrToFloat(Fields[_Y]);
+          Clone.Position.Z := StrToFloat(Fields[_Z]);
+          Clone.Rotation.X := StrToFloat(Fields[_RX]);
+          Clone.Rotation.Y := StrToFloat(Fields[_RY]);
+          Clone.Rotation.Z := StrToFloat(Fields[_RZ]);
 
-  LoadModel(12,'tree1.obj',    7.0,0.0,5.0,    1);
-  LoadModel(13,'tree2.obj',    -6.0,0.0,4.0,    1);
+          SetLength(Scene.Models[LastModel].Clones, Length(Scene.Models[LastModel].Clones) + 1);
+          Scene.Models[LastModel].Clones[High(Scene.Models[LastModel].Clones)] := Clone;
+        end;
+        if Fields[_ACTION] = 'camera' then
+        begin
+           if Fields[_PROP] = 'pos' then
+           begin
+            Scene.Camera.X := StrToFloat(Fields[_X]);
+            Scene.Camera.Y := StrToFloat(Fields[_Y]);
+            Scene.Camera.Z := StrToFloat(Fields[_Z]);
+            Scene.Camera.LookAt.X := StrToFloat(Fields[_RX]);
+            Scene.Camera.LookAt.Y := StrToFloat(Fields[_RY]);
+            Scene.Camera.LookAt.Z := StrToFloat(Fields[_RZ]);
+           end;
+           if Fields[_PROP] = 'lens' then
+            Scene.Camera.Lens := StrToFloat(Fields[_VAL1]);
+        end;
+        if Fields[_ACTION] = 'fog' then
+        begin
+          if Fields[_PROP] = 'enable' then
+          begin
+            Scene.Fog.Enabled := true;
+            Scene.Fog.Density := StrToFloat(Fields[_VAL1]);
+            Scene.Fog.Color.R := StrToFloat(Fields[_R]);
+            Scene.Fog.Color.G := StrToFloat(Fields[_G]);
+            Scene.Fog.Color.B := StrToFloat(Fields[_B]);
+          end;
+          if Fields[_PROP] = 'disable' then
+            Scene.Fog.Enabled := false;
+        end;
+        if Fields[_ACTION] = 'terrain' then
+        begin
+          Scene.Terrain := LoadModel(
+            Fields[_NAME],
+            StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
+        end;
+        if Fields[_ACTION] = 'sun' then
+        begin
+          Scene.Sun.X := StrToFloat(Fields[_X]);
+          Scene.Sun.Y := StrToFloat(Fields[_Y]);
+          Scene.Sun.Z := StrToFloat(Fields[_Z]);
+          Scene.Sun.Color.R := StrToFloat(Fields[_R]);
+          Scene.Sun.Color.G := StrToFloat(Fields[_G]);
+          Scene.Sun.Color.B := StrToFloat(Fields[_B]);
+        end;
+        if Fields[_ACTION] = 'ambient' then
+        begin
+          Scene.Ambient.R := StrToFloat(Fields[_R]);
+          Scene.Ambient.G := StrToFloat(Fields[_G]);
+          Scene.Ambient.B := StrToFloat(Fields[_B]);
+        end;
+        if Fields[_ACTION] = 'skybox' then
+        begin
+          Scene.Skybox := LoadModel(
+            Fields[_NAME],
+            StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
+        end;
+      end;
 
+      if StrToFloat(Fields[_TIMESTAMP]) > 0 then
+      begin
+        ScreenplayLine.Timestamp :=  StrToFloat(Fields[_TIMESTAMP]);
+        ScreenplayLine.Action :=  Fields[_ACTION];
+        ScreenplayLine.Name :=  Fields[_NAME];
 
-  Camera.Y := 1.6;
-  Camera.Z := 3.0;
+        if Fields[_ACTION] = 'start' then
+        begin
+          Break;
+        end;
+
+        if Fields[_ACTION] = 'end' then
+        begin
+          Break;
+        end;
+
+        for f := 0 to 5 do
+        begin
+          ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
+        end;
+        SetLength(Screenplay, Length(Screenplay) + 1);
+        Screenplay[High(Screenplay)] := ScreenplayLine;
+      end;
+    end;
+  finally
+    Fields.Free;
+    CloseFile(CSVFile);
+  end;
+end;
+
+//    ---   ---   ---   ---   ---   ---   ---   ---   INIT DEMO
+procedure TFormDemo.InitDemo();
+var
+  PixelFormat: TPixelFormatDescriptor;
+  FormatIndex: integer;
+begin
+  LoadCSVFile();
 
   DC := GetDC(Handle);
   FillChar(PixelFormat, SizeOf(PixelFormat), 0);
@@ -327,163 +585,59 @@ begin
   glViewport(0,0,ClientWidth,ClientHeight);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(70.0,ClientWidth/ClientHeight, 0.1, 40.0);
+  gluPerspective(Scene.Camera.Lens,ClientWidth/ClientHeight, 0.2, 400.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  glEnable(GL_NORMALIZE);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_SMOOTH);
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_COLOR_MATERIAL);
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-  glEnable(GL_FOG);
-  glFogi(GL_FOG_MODE, GL_EXP2);
-  glFogfv(GL_FOG_COLOR, @FogColor);
-  glFogf(GL_FOG_DENSITY, 0.08);
-  glHint(GL_FOG_HINT, GL_DONT_CARE);
+  if Scene.Fog.Enabled then
+  begin
+    glFogi(GL_FOG_MODE, GL_EXP2);
+    glFogfv(GL_FOG_COLOR, @Scene.Fog.Color);
+    glFogf(GL_FOG_DENSITY, Scene.Fog.Density);
+    glHint(GL_FOG_HINT, GL_DONT_CARE);
+  end;
 
   glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT_MODEL_AMBIENT);
+
   glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, @AmbientLight);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, @DiffuseLight);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, @SpecularLight);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPosition);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, @Scene.Ambient);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.Sun.Color);
+  glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
+
 end;
 
-procedure TFormDemo.Render();
-var
-  f,j, m, model: Integer;
-  Vert: TVertex;
-  Normal: TVertex;
-  Face: TFace;
-  side: Double;
+
+procedure TFormDemo.KillDemo();
 begin
-  glClearColor(0.1, 0.1, 0.1, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
-  glLoadIdentity();
+  DemoTime := 0.0;
+  DemoRunning := false;
+  SetLength(Scene.Models,0);
+  wglDeleteContext(RC);
+  ReleaseDC(FormDemo.Handle, DC);
+end;
 
-  gluLookAt(JeepPosition.X+Camera.X, Camera.Y+4.0, JeepPosition.Z+Camera.Z,
-  JeepPosition.X,JeepPosition.Y+2.0,JeepPosition.Z-2.0,
-  0.0,0.0,-1.0);
-
-  for m := Low(Models) to 11 do
-  begin
-    glPushMatrix();
-    glTranslatef(Models[m].Position.X, Models[m].Position.Y, Models[m].Position.Z);
-    glRotate(Models[m].Rotation.X, 1.0,0.0,0.0);
-    glRotate(Models[m].Rotation.Y, 0.0,1.0,0.0);
-    glRotate(Models[m].Rotation.Z, 0.0,0.0,1.0);
-
-    if Models[m].Material = 0 then
-    begin
-    glMaterialfv(GL_FRONT,GL_AMBIENT, @Color0);
-    glMaterialfv(GL_FRONT,GL_DIFFUSE, @Color0);
-    glMaterialfv(GL_FRONT,GL_SHININESS, @Matt);
-    end;
-
-    if Models[m].Material = 1 then
-    begin
-    glMaterialfv(GL_FRONT,GL_AMBIENT, @Color1);
-    glMaterialfv(GL_FRONT,GL_DIFFUSE, @Color1);
-    glMaterialfv(GL_FRONT,GL_SHININESS, @Shininess);
-    end;
-
-    if Models[m].Material = 2 then
-    begin
-    glMaterialfv(GL_FRONT,GL_AMBIENT, @Color2);
-    glMaterialfv(GL_FRONT,GL_DIFFUSE, @Color2);
-    glMaterialfv(GL_FRONT,GL_SHININESS, @Matt);
-    end;
-
-    glMaterialfv(GL_FRONT,GL_SPECULAR, @Specular);
-    glMaterialfv(GL_FRONT,GL_EMISSION, @EmissionOff);
-
-    if Models[m].Material = 3 then
-    begin
-    glMaterialfv(GL_FRONT,GL_AMBIENT, @Color2);
-    glMaterialfv(GL_FRONT,GL_DIFFUSE, @Color2);
-    glMaterialfv(GL_FRONT,GL_EMISSION, @Color2);
-    glMaterialfv(GL_FRONT,GL_SHININESS, @Matt);
-    end;
-
-    for f := Low(Models[m].Faces) to High(Models[m].Faces) do
-    begin
-      glBegin(GL_TRIANGLES);
-        Normal := Models[m].Faces[f].Normal;
-        glNormal3f(Normal.X, Normal.Y, Normal.Z);
-        Face := Models[m].Faces[f];
-        glColor3f(0.5,0.5,0.5);
-        for j := 1 to 3 do
-        begin
-          Vert := Models[m].Vertices[Face.Vec3[j]-1];
-          glVertex3f(Vert.X,Vert.Y,Vert.Z);
-        end;
-      glEnd;
-    end;
-    glPopMatrix();
-  end;
-
-  // TREES
-
-  for m := 0 to 128 do
-  begin
-    glPushMatrix();
-    side :=1.0;
-    model := 12;
-    if m mod 2 = 0 then
-    begin
-      side := -1.0;
-      model := 13
-    end;
-    glTranslatef((30+Sin(m*128)*24.0)*side,-0.5+Sin(m*512)*0.5,32+Sin(m*432)*64.0);
-    glRotate(Sin(m*128.0)*360.0, 0.0,1.0,0.0);
-
-    glMaterialfv(GL_FRONT,GL_AMBIENT, @ColorGreen);
-    glMaterialfv(GL_FRONT,GL_DIFFUSE, @ColorGreen);
-    glMaterialfv(GL_FRONT,GL_SHININESS, @Matt);
-
-    for f := Low(Models[model].Faces) to High(Models[model].Faces) do
-    begin
-      glBegin(GL_TRIANGLES);
-        Normal := Models[model].Faces[f].Normal;
-        glNormal3f(Normal.X, Normal.Y, Normal.Z);
-        Face := Models[model].Faces[f];
-        glColor3f(0.5,0.5,0.5);
-        for j := 1 to 3 do
-        begin
-          Vert := Models[model].Vertices[Face.Vec3[j]-1];
-          glVertex3f(Vert.X,Vert.Y,Vert.Z);
-        end;
-      glEnd;
-    end;
-
-    glPopMatrix();
-  end;
+procedure TFormDemo.FormShow(Sender: TObject);
+begin
+  if FormDemo.Visible then
+    KillDemo();
+  InitDemo;
 end;
 
 procedure TFormDemo.FormDestroy(Sender: TObject);
 begin
-  wglDeleteContext(RC);
-  ReleaseDC(FormDemo.Handle, DC)
+  KillDemo();
 end;
 
-procedure TFormDemo.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-const
-  MaxSpeed: Double = 0.15;
+procedure TFormDemo.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  case Key of
-    Ord('W'): MovementVector.Z := -MaxSpeed;
-    Ord('S'): MovementVector.Z := MaxSpeed;
-    Ord('Q'): MovementVector.Y := -MaxSpeed;
-    Ord('E'): MovementVector.Y := MaxSpeed;
-    Ord('A'): MovementVector.X := -MaxSpeed;
-    Ord('D'): MovementVector.X := MaxSpeed;
-    Ord('J'): Camera.AngleY := Camera.AngleY-MaxSpeed*10.0;
-    Ord('K'): Camera.AngleY := Camera.AngleY+MaxSpeed*10.09;
-  end;
-end;
-
-procedure TFormDemo.FormPaint(Sender: TObject);
-begin
-  SwapBuffers(DC);
+  KillDemo();
 end;
 
 end.
