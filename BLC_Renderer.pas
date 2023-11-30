@@ -39,6 +39,7 @@ type
     Position: TVertex;
     Rotation: TVertex;
     Clones: array of TModelClone;
+    Shading: Integer;
   end;
 
   TCamera = record
@@ -83,6 +84,7 @@ type
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SetFullScreen(DisplayWidth, DisplayHeight: Integer);
     procedure ResizeViewport();
     procedure FormResize(Sender: TObject);
     procedure CenterWindow();
@@ -97,12 +99,15 @@ type
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
 
 const
-  CameraNear: Double = 0.1;
-  CameraFar: Double = 150;
-
+  CameraNear: Double = 0.25;
+  CameraFar: Double = 400;
+  SHADE_FLAT = 0;
+  SHADE_SMOOTH = 1;
 var
   FormDemo: TFormDemo;
   DemoTime: Double = 0.0;
+  DemoSpeed: Double = 1.0;
+  DemoLength: Double = 120.0;
   Screenplay: array of TScreenplayLine;
   ActiveLine: Integer = 0;
   DemoRunning: Boolean = false;
@@ -114,16 +119,19 @@ var
   LastFrameTime, CurrentTime, FrameTime: TDateTime;
   OldWindowStyle: Longint;
   FogColor: array[0..3] of GLfloat = (0.6,0.6,0.6,1.0);
-
+  DeviceMode: TDevMode;
 implementation
 
 {$R *.dfm}
 
+
+//    ---   ---   ---   ---   ---   ---   ---   ---   KILL FLICKERING
 procedure TFormDemo.WMEraseBkgnd(var Message: TWMEraseBkgnd);
 begin
   Message.Result := 1;
 end;
 
+//    ---   ---   ---   ---   ---   ---   ---   ---   VSYNC (GL)
 procedure InitVSync;
 begin
   if not Assigned(wglSwapIntervalEXT) then
@@ -133,6 +141,9 @@ begin
   end;
   wglSwapIntervalEXT(1);
 end;
+
+ 
+//    ---   ---   ---   ---   ---   ---   ---   ---   TIMER
 
 procedure TFormDemo.Timer1Timer(Sender: TObject);
 const
@@ -162,7 +173,6 @@ begin
   end;
   Scene.Camera.Y := Scene.Camera.Y + MovementVector.Y;
 
-
   if MovementVector.Z > 0 then
   begin
     MovementVector.Z := MovementVector.Z - MovementReduction;
@@ -175,14 +185,25 @@ begin
   end;
   Scene.Camera.Z := Scene.Camera.Z + MovementVector.Z;
 
+  //    ---   ---   ---   ---   ---   ---   ---   ---   NEW FAME
+
+
   if DemoRunning then
-    Direct();
+  begin
+    //Scene.Models[High(Scene.Models)].Rotation.Z := 360 * Sin(DemoTime);
+    //Scene.Models[High(Scene.Models)].Rotation.X := 90 + 10 * Sin(DemoTime);
+    DemoTime := DemoTime + FrameTime/1000;
+    if DemoTime > DemoLength then
+      DemoTime := 0.0;
+  end;
+
+  Direct();
   Render();
 
   Invalidate;
 end;
 
-
+//    ---   ---   ---   ---   ---   ---   ---   ---   READ OBJ FILE
 function TFormDemo.ReadOBJFile(const FileName: string): TModel;
 var
   FileLines: TStringList;
@@ -259,10 +280,11 @@ begin
   Model.Rotation.Y := 0.0;
   Model.Rotation.Z := 0.0;
 
+  Model.Shading := SHADE_SMOOTH;
   Result := Model;
 end;
 
-
+//    ---   ---   ---   ---   ---   ---   ---   ---   DIRECT
 procedure TFormDemo.Direct();
 const
   _X: Integer = 0;_VAL1: Integer = 0;
@@ -309,8 +331,6 @@ end;
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
 
-
-
 procedure TFormDemo.Render();
 var
   m,c: Integer;
@@ -339,6 +359,10 @@ begin
     glRotatef(Model.Rotation.X, 1.0,0.0,0.0);
     glRotatef(Model.Rotation.Y, 0.0,1.0,0.0);
     glRotatef(Model.Rotation.Z, 0.0,0.0,1.0);
+
+    glShadeModel(GL_SMOOTH);
+    if Model.Shading = SHADE_FLAT then
+      glShadeModel(GL_FLAT);
 
     for f := Low(Model.Faces) to High(Model.Faces) do
     begin
@@ -414,17 +438,20 @@ begin
      begin
     if WindowState = wsNormal then
     begin
-      SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) and not WS_CAPTION);
-      WindowState := wsMaximized;
-      SetBounds(0, 0, Screen.Width, Screen.Height);
+      //SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) and not WS_CAPTION);
+      //WindowState := wsMaximized;
+      //SetBounds(0, 0, Screen.Width, Screen.Height);
+      SetFullScreen(320,200);
+      glViewport(0, 20,320,160);
     end
     else
     begin
-      SetWindowLong(Handle, GWL_STYLE, OldWindowStyle);
-      WindowState := wsNormal;
-      Width := 640;
-      Height := 400;
-      CenterWindow;
+      //SetWindowLong(Handle, GWL_STYLE, OldWindowStyle);
+      //WindowState := wsNormal;
+      //Width := 640;
+      //Height := 400;
+      //CenterWindow; 
+      ShowWindow(Application.Handle, SW_RESTORE);
     end;
   end;
   end;
@@ -472,6 +499,7 @@ begin
   Model.Rotation.Z := RZ;
   Result := Model;
 end;
+//    ---   ---   ---   ---   ---   ---   ---   ---   DECODE CSV DATA
 begin
   AssignFile(CSVFile, 'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\screenplay.csv');
   Reset(CSVFile);
@@ -483,7 +511,7 @@ begin
       ReadLn(CSVFile, Line);
       Fields.DelimitedText := Line;
 
-      if StrToFloat(Fields[_TIMESTAMP]) = 0 then
+      if StrToFloat(Fields[_TIMESTAMP]) < 0 then
       begin
         if Fields[_ACTION] = 'load' then
         begin
@@ -505,6 +533,14 @@ begin
 
           SetLength(Scene.Models[LastModel].Clones, Length(Scene.Models[LastModel].Clones) + 1);
           Scene.Models[LastModel].Clones[High(Scene.Models[LastModel].Clones)] := Clone;
+        end;
+        if Fields[_ACTION] = 'shade' then
+        begin
+          LastModel := High(Scene.Models);
+          if Fields[_PROP] = 'smooth' then
+            Scene.Models[LastModel].Shading := SHADE_SMOOTH;
+          if Fields[_PROP] = 'flat' then
+            Scene.Models[LastModel].Shading := SHADE_FLAT;
         end;
         if Fields[_ACTION] = 'camera' then
         begin
@@ -562,7 +598,7 @@ begin
         end;
       end;
 
-      if StrToFloat(Fields[_TIMESTAMP]) > 0 then
+      if StrToFloat(Fields[_TIMESTAMP]) >= 0 then
       begin
         ScreenplayLine.Timestamp :=  StrToFloat(Fields[_TIMESTAMP]);
         ScreenplayLine.Action :=  Fields[_ACTION];
@@ -575,6 +611,7 @@ begin
 
         if Fields[_ACTION] = 'end' then
         begin
+          DemoLength := StrToFloat(Fields[_TIMESTAMP]);
           Break;
         end;
 
@@ -649,6 +686,24 @@ begin
   LastFrameTime := Now;
 end;
 
+
+procedure TFormDemo.SetFullScreen(DisplayWidth, DisplayHeight: Integer);
+begin
+  with DeviceMode do
+  begin
+    dmSize := SizeOf(TDevMode);
+    dmPelsWidth := DisplayWidth;
+    dmPelsHeight := DisplayHeight;
+    dmBitsPerPel := 32;
+    dmFields :=DM_PELSWIDTH or DM_PELSHEIGHT or DM_BITSPERPEL;
+  end;
+  ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
+  ShowWindow(Handle, SW_MAXIMIZE);
+  SetWindowPos(Handle,
+    HWND_TOPMOST, 0, 0,
+    DisplayWidth,DisplayHeight,
+    SWP_SHOWWINDOW);
+end;
 
 procedure TFormDemo.KillDemo();
 begin

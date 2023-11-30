@@ -44,7 +44,6 @@ type
   end;
 
 const
-  DemoLength: Double = 120.0;
   SeekTime: Double = 2.0;
 var
   FormCC: TFormCC;
@@ -111,15 +110,13 @@ begin
     ButtonPause.Caption := 'PLAY';
     LabelTimeStamp.Font.Color := clMedGray;
   end;
+
+  if TrackBarDemoTime.Max <> DemoLength then
+    TrackBarDemoTime.Max := Round(DemoLength*100);
 end;
 
 procedure TFormCC.TimerDemoTimer(Sender: TObject);
 begin
-  DemoTime := DemoTime + 0.1;
-  if DemoTime > DemoLength then
-  begin
-    DemoTime := 0.0;
-  end;
   RefreshTimer();
 end;
 
@@ -130,10 +127,12 @@ begin
   if TimerDemo.Enabled  then
   begin
     TimerDemo.Enabled := false;
+    DemoRunning := false;
   end
   else
   begin
     TimerDemo.Enabled := true;
+    DemoRunning := true;
   end;
   RefreshTimer;
 end;

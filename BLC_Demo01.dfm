@@ -1,6 +1,6 @@
 object FormCC: TFormCC
-  Left = 343
-  Top = 819
+  Left = 191
+  Top = 405
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Command & Control'
@@ -735,7 +735,7 @@ object FormCC: TFormCC
   end
   object TimerDemo: TTimer
     Enabled = False
-    Interval = 1
+    Interval = 30
     OnTimer = TimerDemoTimer
   end
 end

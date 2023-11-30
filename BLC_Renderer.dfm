@@ -1,11 +1,11 @@
 object FormDemo: TFormDemo
-  Left = 298
-  Top = 213
-  Width = 640
-  Height = 400
+  Left = 152
+  Top = 132
   BorderIcons = []
-  BorderWidth = 16
+  BorderStyle = bsNone
   Caption = 'Demo'
+  ClientHeight = 320
+  ClientWidth = 640
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -489,7 +489,7 @@ object FormDemo: TFormDemo
   TextHeight = 13
   object Timer1: TTimer
     Tag = 9
-    Interval = 8
+    Interval = 15
     OnTimer = Timer1Timer
     Left = 8
     Top = 8

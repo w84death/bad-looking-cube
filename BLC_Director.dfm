@@ -1,6 +1,6 @@
 object FormDirector: TFormDirector
-  Left = 384
-  Top = 262
+  Left = 268
+  Top = 8
   Width = 510
   Height = 549
   BorderIcons = [biSystemMenu, biMinimize]
@@ -720,7 +720,7 @@ object FormDirector: TFormDirector
     object Label1: TLabel
       Left = 176
       Top = 18
-      Width = 65
+      Width = 43
       Height = 15
       Caption = 'Dir: 00.00'
       Font.Charset = DEFAULT_CHARSET
