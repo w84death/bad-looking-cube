@@ -1,10 +1,10 @@
 object FormDirector: TFormDirector
-  Left = 268
-  Top = 8
-  Width = 510
-  Height = 549
+  Left = 37
+  Top = 54
+  Width = 740
+  Height = 480
   BorderIcons = [biSystemMenu, biMinimize]
-  Caption = 'Director'
+  Caption = 'Director - Bad Looking Cube'
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -480,84 +480,11 @@ object FormDirector: TFormDirector
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object GroupApp: TGroupBox
-    Left = 0
-    Top = 478
-    Width = 502
-    Height = 44
-    Align = alBottom
-    Caption = 'TOOLS'
-    Color = clBlack
-    Ctl3D = False
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clYellow
-    Font.Height = -8
-    Font.Name = 'Arial Narrow'
-    Font.Style = [fsBold, fsItalic]
-    ParentColor = False
-    ParentCtl3D = False
-    ParentFont = False
-    TabOrder = 0
-    object DBNavigator1: TDBNavigator
-      Left = 8
-      Top = 16
-      Width = 222
-      Height = 25
-      DataSource = DataSource1
-      VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbInsert, nbDelete]
-      TabOrder = 1
-    end
-    object ButtonSave: TButton
-      Left = 344
-      Top = 16
-      Width = 89
-      Height = 25
-      Caption = 'Save Changes'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -13
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 0
-      OnClick = ButtonSaveClick
-    end
-    object ButtonRunDemo: TButton
-      Left = 248
-      Top = 16
-      Width = 81
-      Height = 25
-      Caption = 'RESTART'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 2
-      OnClick = ButtonRunDemoClick
-    end
-    object ButtonClose: TButton
-      Left = 432
-      Top = 16
-      Width = 65
-      Height = 25
-      Caption = 'CLOSE'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 3
-      OnClick = ButtonCloseClick
-    end
-  end
   object DBGrid1: TDBGrid
     Left = 0
-    Top = 0
-    Width = 502
-    Height = 437
+    Top = 126
+    Width = 732
+    Height = 327
     Align = alClient
     BorderStyle = bsNone
     Color = clMoneyGreen
@@ -570,7 +497,7 @@ object FormDirector: TFormDirector
     Font.Style = [fsBold]
     Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 0
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clLime
     TitleFont.Height = -11
@@ -614,7 +541,7 @@ object FormDirector: TFormDirector
         FieldName = 'x'
         Title.Alignment = taCenter
         Title.Caption = 'X'
-        Width = 40
+        Width = 95
         Visible = True
       end
       item
@@ -622,7 +549,7 @@ object FormDirector: TFormDirector
         FieldName = 'y'
         Title.Alignment = taCenter
         Title.Caption = 'Y'
-        Width = 40
+        Width = 89
         Visible = True
       end
       item
@@ -630,7 +557,7 @@ object FormDirector: TFormDirector
         FieldName = 'z'
         Title.Alignment = taCenter
         Title.Caption = 'Z'
-        Width = 40
+        Width = 89
         Visible = True
       end
       item
@@ -638,7 +565,7 @@ object FormDirector: TFormDirector
         FieldName = 'rx'
         Title.Alignment = taCenter
         Title.Caption = 'ROT X'
-        Width = 40
+        Width = 75
         Visible = True
       end
       item
@@ -647,7 +574,7 @@ object FormDirector: TFormDirector
         FieldName = 'ry'
         Title.Alignment = taCenter
         Title.Caption = 'ROT Y'
-        Width = 40
+        Width = 71
         Visible = True
       end
       item
@@ -656,18 +583,239 @@ object FormDirector: TFormDirector
         FieldName = 'rz'
         Title.Alignment = taCenter
         Title.Caption = 'ROT Z'
-        Width = 40
+        Width = 75
         Visible = True
       end>
   end
-  object GroupCamera: TGroupBox
+  object PanelTools: TPanel
     Left = 0
-    Top = 437
-    Width = 502
+    Top = 41
+    Width = 732
     Height = 41
-    Align = alBottom
-    Caption = 'CAMERA'
-    Color = clBlue
+    Align = alTop
+    Color = clBlack
+    TabOrder = 1
+    object GroupB: TGroupBox
+      Left = 185
+      Top = 1
+      Width = 218
+      Height = 39
+      Align = alClient
+      Caption = 'OTHER'
+      Color = clBackground
+      Ctl3D = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 1
+      object LabelCamZ: TLabel
+        Left = 40
+        Top = 18
+        Width = 118
+        Height = 15
+        Caption = 'SPACE FOR FUTURE USE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSkyBlue
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+    end
+    object GroupCamera: TGroupBox
+      Left = 403
+      Top = 1
+      Width = 328
+      Height = 39
+      Align = alRight
+      Caption = 'CAMERA'
+      Color = clBlue
+      Ctl3D = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 2
+      object Label4: TLabel
+        Left = 8
+        Top = 18
+        Width = 36
+        Height = 15
+        Caption = 'X: 00.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label5: TLabel
+        Left = 56
+        Top = 18
+        Width = 35
+        Height = 15
+        Caption = 'Y: 00.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clLime
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label6: TLabel
+        Left = 104
+        Top = 18
+        Width = 35
+        Height = 15
+        Caption = 'Z: 00.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clSkyBlue
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label7: TLabel
+        Left = 176
+        Top = 18
+        Width = 46
+        Height = 15
+        Caption = 'DIR: 00.00'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clLime
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label8: TLabel
+        Left = 264
+        Top = 10
+        Width = 48
+        Height = 15
+        Caption = 'DIRECTED'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clLime
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label9: TLabel
+        Left = 264
+        Top = 22
+        Width = 25
+        Height = 15
+        Caption = 'FREE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clMedGray
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+    end
+    object GroupA: TGroupBox
+      Left = 1
+      Top = 1
+      Width = 184
+      Height = 39
+      Align = alLeft
+      Caption = 'SPREADSHEET'
+      Color = clSkyBlue
+      Ctl3D = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 0
+      object DBNavigator1: TDBNavigator
+        Left = 92
+        Top = 12
+        Width = 88
+        Height = 25
+        DataSource = DataSource1
+        VisibleButtons = [nbInsert, nbDelete]
+        TabOrder = 0
+      end
+      object ButtonSave: TButton
+        Left = 2
+        Top = 12
+        Width = 89
+        Height = 25
+        Caption = 'Save Changes'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -13
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        OnClick = ButtonSaveClick
+      end
+    end
+  end
+  object PanelMain: TPanel
+    Left = 0
+    Top = 0
+    Width = 732
+    Height = 41
+    Align = alTop
+    Caption = 'Director Panel'
+    Color = clFuchsia
+    TabOrder = 2
+    object ButtonRunDemo: TButton
+      Left = 8
+      Top = 8
+      Width = 121
+      Height = 25
+      Caption = 'RESTART DEMO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      OnClick = ButtonRunDemoClick
+    end
+    object ButtonClose: TButton
+      Left = 656
+      Top = 8
+      Width = 65
+      Height = 25
+      Caption = 'CLOSE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      OnClick = ButtonCloseClick
+    end
+  end
+  object GroupApp: TGroupBox
+    Left = 0
+    Top = 82
+    Width = 732
+    Height = 44
+    Align = alTop
+    Caption = 'TOOLS'
+    Color = clBlack
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clYellow
@@ -677,87 +825,7 @@ object FormDirector: TFormDirector
     ParentColor = False
     ParentCtl3D = False
     ParentFont = False
-    TabOrder = 2
-    object LabelCamX: TLabel
-      Left = 8
-      Top = 18
-      Width = 36
-      Height = 15
-      Caption = 'X: 00.00'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object LabelCamY: TLabel
-      Left = 56
-      Top = 18
-      Width = 35
-      Height = 15
-      Caption = 'Y: 00.00'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clLime
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object LabelCamZ: TLabel
-      Left = 104
-      Top = 18
-      Width = 35
-      Height = 15
-      Caption = 'Z: 00.00'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clSkyBlue
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object Label1: TLabel
-      Left = 176
-      Top = 18
-      Width = 43
-      Height = 15
-      Caption = 'Dir: 00.00'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clLime
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object ButtonCamSave: TButton
-      Left = 344
-      Top = 16
-      Width = 89
-      Height = 25
-      Caption = 'Insert PosRot'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 0
-    end
-    object ButtonCamLoad: TButton
-      Left = 432
-      Top = 16
-      Width = 65
-      Height = 25
-      Caption = 'Load'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 1
-    end
+    TabOrder = 3
   end
   object DataSource1: TDataSource
     DataSet = ClientDataSet1

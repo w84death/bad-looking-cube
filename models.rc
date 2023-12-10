@@ -1,0 +1,32 @@
+skybox RCDATA Models/skybox.obj
+terrain0 RCDATA Models/terrain0.obj
+tree0 RCDATA Models/tree0.obj
+tree1 RCDATA Models/tree1.obj
+tree2 RCDATA Models/tree2.obj
+grass0 RCDATA Models/grass0.obj
+grass1 RCDATA Models/grass1.obj
+grass2 RCDATA Models/grass2.obj
+shroom0 RCDATA Models/shroom0.obj
+shroom1 RCDATA Models/shroom1.obj
+shroom2 RCDATA Models/shroom2.obj
+shroom3 RCDATA Models/shroom3.obj
+rock0 RCDATA Models/rock0.obj
+rock1 RCDATA Models/rock1.obj
+rock2 RCDATA Models/rock2.obj
+man RCDATA Models/man.obj
+sofa RCDATA Models/sofa.obj
+crt RCDATA Models/crt.obj
+pc RCDATA Models/pc.obj
+kbd RCDATA Models/kbd.obj
+rooom0 RCDATA Models/room0.obj
+desk RCDATA Models/desk.obj
+fan RCDATA Models/fan.obj
+tent RCDATA Models/tent.obj
+rug RCDATA Models/rug.obj
+jeep RCDATA Models/jeep.obj
+floppy RCDATA Models/floppy.obj
+txt_production RCDATA Models/txt_production.obj
+txt_demo RCDATA Models/txt_demo.obj
+txt_presents RCDATA Models/txt_presents.obj
+
+

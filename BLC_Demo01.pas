@@ -38,7 +38,8 @@ type
     procedure ButtonAboutClick(Sender: TObject);
     procedure TrackBarDemoTimeChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure ButtonShowDirectorClick(Sender: TObject);
+    procedure ButtonShowDirectorClick(Sender: TObject); 
+    procedure CenterWindow();
   public
     procedure OpenDemoWindow();
   end;
@@ -66,8 +67,6 @@ begin
   FormDemo.Show;
   FormDemo.InitDemo;
   GroupPlayback.Visible := true;
-  TrackBarDemoTime.Visible := true;
-  GroupTimer.Visible := true;
   DemoTime := 0.0;
   TimerDemo.Enabled := true;
   BLC_Renderer.DemoRunning := true;
@@ -83,8 +82,6 @@ procedure TFormCC.ButtonCloseDermoClick(Sender: TObject);
 begin
   FormDemo.Close;
   GroupPlayback.Visible := false;
-  TrackBarDemoTime.Visible := false;
-  GroupTimer.Visible := false;
   DemoTime := 0.0;
   TimerDemo.Enabled := false;
   BLC_Renderer.DemoRunning := false;
@@ -188,12 +185,19 @@ end;
 
 procedure TFormCC.FormCreate(Sender: TObject);
 begin
+  CenterWindow;
   TrackBarDemoTime.Max := Round(DemoLength*100);
 end;
 
 procedure TFormCC.ButtonShowDirectorClick(Sender: TObject);
 begin
   FormDirector.Show;
+end;
+
+procedure TFormCC.CenterWindow();
+begin;
+  Left := (Screen.Width - Width) div 2;
+  Top := 8;
 end;
 
 end.

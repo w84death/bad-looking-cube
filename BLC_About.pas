@@ -7,15 +7,14 @@ uses
 
 type
   TFormAbout = class(TForm)
-    Label1: TLabel;
-    GroupCredits: TGroupBox;
-    Label2: TLabel;
-    ImageP1X: TImage;
-    GroupBox1: TGroupBox;
-    Label3: TLabel;
-    Label4: TLabel;
     ButtonOK: TButton;
+    ImageP1X: TImage;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label4: TLabel;
     procedure ButtonOKClick(Sender: TObject);
+    procedure CenterWindow();
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -32,6 +31,17 @@ implementation
 procedure TFormAbout.ButtonOKClick(Sender: TObject);
 begin
 Close;
+end;
+
+procedure TFormAbout.CenterWindow();
+begin;
+  Left := (Screen.Width - Width) div 2;
+  Top := (Screen.Height - Height) div 2;
+end;
+
+procedure TFormAbout.FormCreate(Sender: TObject);
+begin
+  CenterWindow;
 end;
 
 end.

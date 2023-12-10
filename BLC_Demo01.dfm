@@ -1,12 +1,12 @@
 object FormCC: TFormCC
-  Left = 191
-  Top = 405
+  Left = 17
+  Top = 465
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Command & Control'
-  ClientHeight = 139
-  ClientWidth = 601
-  Color = clBlue
+  Caption = 'Command & Control - Bad Looking Cube'
+  ClientHeight = 76
+  ClientWidth = 760
+  Color = clGray
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -483,9 +483,9 @@ object FormCC: TFormCC
   PixelsPerInch = 96
   TextHeight = 15
   object GroupPlayback: TGroupBox
-    Left = 296
-    Top = 64
-    Width = 297
+    Left = 224
+    Top = 8
+    Width = 225
     Height = 41
     Caption = 'PLAYBACK'
     Color = clBlack
@@ -503,7 +503,7 @@ object FormCC: TFormCC
     object ButtonBegin: TButton
       Left = 0
       Top = 16
-      Width = 57
+      Width = 49
       Height = 25
       Caption = 'BEGIN'
       Font.Charset = DEFAULT_CHARSET
@@ -516,9 +516,9 @@ object FormCC: TFormCC
       OnClick = ButtonBeginClick
     end
     object ButtonPause: TButton
-      Left = 112
+      Left = 80
       Top = 16
-      Width = 73
+      Width = 65
       Height = 25
       Caption = 'PLAY'
       Font.Charset = DEFAULT_CHARSET
@@ -531,9 +531,9 @@ object FormCC: TFormCC
       OnClick = ButtonPauseClick
     end
     object ButtonSeekForward: TButton
-      Left = 184
+      Left = 144
       Top = 16
-      Width = 57
+      Width = 33
       Height = 25
       Caption = '>>'
       Font.Charset = DEFAULT_CHARSET
@@ -546,9 +546,9 @@ object FormCC: TFormCC
       OnClick = ButtonSeekForwardClick
     end
     object ButtonEnd: TButton
-      Left = 240
+      Left = 176
       Top = 16
-      Width = 57
+      Width = 49
       Height = 25
       Caption = 'END'
       Font.Charset = DEFAULT_CHARSET
@@ -561,9 +561,9 @@ object FormCC: TFormCC
       OnClick = ButtonEndClick
     end
     object ButtonSeekBack: TButton
-      Left = 56
+      Left = 48
       Top = 16
-      Width = 57
+      Width = 33
       Height = 25
       Caption = '<<'
       Font.Charset = DEFAULT_CHARSET
@@ -577,10 +577,10 @@ object FormCC: TFormCC
     end
   end
   object GroupTimer: TGroupBox
-    Left = 8
-    Top = 56
-    Width = 193
-    Height = 49
+    Left = 456
+    Top = 8
+    Width = 153
+    Height = 45
     Caption = 'TIMER - TIMESTAMP'
     Color = clBlack
     Ctl3D = False
@@ -593,12 +593,11 @@ object FormCC: TFormCC
     ParentCtl3D = False
     ParentFont = False
     TabOrder = 1
-    Visible = False
     object LabelTimeStamp: TLabel
       Left = 1
       Top = 14
-      Width = 191
-      Height = 34
+      Width = 151
+      Height = 30
       Align = alClient
       Alignment = taCenter
       Caption = '0.00'
@@ -676,7 +675,7 @@ object FormCC: TFormCC
     end
   end
   object GroupApp: TGroupBox
-    Left = 464
+    Left = 624
     Top = 8
     Width = 129
     Height = 41
@@ -724,13 +723,16 @@ object FormCC: TFormCC
     end
   end
   object TrackBarDemoTime: TTrackBar
-    Left = 8
-    Top = 112
-    Width = 585
-    Height = 25
+    Left = 0
+    Top = 53
+    Width = 760
+    Height = 23
+    Cursor = crUpArrow
+    Align = alBottom
+    Ctl3D = True
     Max = 100
+    ParentCtl3D = False
     TabOrder = 4
-    Visible = False
     OnChange = TrackBarDemoTimeChange
   end
   object TimerDemo: TTimer

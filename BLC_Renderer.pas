@@ -46,6 +46,7 @@ type
     X, Y, Z: GLfloat;
     Direction:  GLfloat;
     Lens: GLfloat;
+    Free: boolean;
   end;
 
   TFog = record
@@ -123,7 +124,7 @@ var
 implementation
 
 {$R *.dfm}
-
+{$R 'models.RES' 'models.rc'}
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   KILL FLICKERING
 procedure TFormDemo.WMEraseBkgnd(var Message: TWMEraseBkgnd);
@@ -149,6 +150,8 @@ procedure TFormDemo.Timer1Timer(Sender: TObject);
 const
   MovementReduction: Double = 0.01;
 begin
+  if Scene.Camera.Free then
+  begin
   if MovementVector.X > 0 then
   begin
     MovementVector.X := MovementVector.X - MovementReduction;
@@ -184,6 +187,9 @@ begin
     if MovementVector.Z > 0 then MovementVector.Z:= 0;
   end;
   Scene.Camera.Z := Scene.Camera.Z + MovementVector.Z;
+
+  end;
+
 
   //    ---   ---   ---   ---   ---   ---   ---   ---   NEW FAME
 
@@ -320,11 +326,13 @@ end;
       (Screenplay[Prev].Name = 'pos') then
     begin
       Pos := CalcPos(Screenplay[Prev].Timestamp,Screenplay[Next].Timestamp,DemoTime);
-
-      Scene.Camera.X := Lerp(Screenplay[Prev].Params[_X],Screenplay[Next].Params[_X],Pos);
-      Scene.Camera.Y := Lerp(Screenplay[Prev].Params[_Y],Screenplay[Next].Params[_Y],Pos);
-      Scene.Camera.Z := Lerp(Screenplay[Prev].Params[_Z],Screenplay[Next].Params[_Z],Pos);
-      Scene.Camera.Direction := Lerp(Screenplay[Prev].Params[_RY],Screenplay[Next].Params[_RY],Pos);
+      if Scene.Camera.Free = false then
+      begin
+        Scene.Camera.X := Lerp(Screenplay[Prev].Params[_X],Screenplay[Next].Params[_X],Pos);
+        Scene.Camera.Y := Lerp(Screenplay[Prev].Params[_Y],Screenplay[Next].Params[_Y],Pos);
+        Scene.Camera.Z := Lerp(Screenplay[Prev].Params[_Z],Screenplay[Next].Params[_Z],Pos);
+        Scene.Camera.Direction := Lerp(Screenplay[Prev].Params[_RY],Screenplay[Next].Params[_RY],Pos);
+      end;
     end;
   end;
 end;
@@ -434,6 +442,7 @@ begin
     Ord('E'): MovementVector.Y := MaxSpeed;
     Ord('A'): MovementVector.X := -MaxSpeed;
     Ord('D'): MovementVector.X := MaxSpeed;
+    Ord('F'): Scene.Camera.Free := not Scene.Camera.Free;
     VK_F11:
      begin
     if WindowState = wsNormal then
@@ -733,7 +742,7 @@ end;
 
 procedure TFormDemo.ResizeViewport();
 const
-  DesiredAspectRatio: GLfloat = 320.0 / 200.0;
+  DesiredAspectRatio: GLfloat = 320.0 / 160.0;
 var
   AspectRatio, ViewportWidth, ViewportHeight: GLfloat;
   ViewportX, ViewportY: Integer;

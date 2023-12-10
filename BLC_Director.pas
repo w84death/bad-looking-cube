@@ -8,25 +8,31 @@ uses
 
 type
   TFormDirector = class(TForm)
-    DBNavigator1: TDBNavigator;
-    GroupApp: TGroupBox;
     DataSource1: TDataSource;
     ClientDataSet1: TClientDataSet;
+    DBGrid1: TDBGrid;
+    PanelTools: TPanel;
+    GroupB: TGroupBox;
+    LabelCamZ: TLabel;
+    GroupCamera: TGroupBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    GroupA: TGroupBox;
+    DBNavigator1: TDBNavigator;
     ButtonSave: TButton;
+    PanelMain: TPanel;
     ButtonRunDemo: TButton;
     ButtonClose: TButton;
-    DBGrid1: TDBGrid;
-    GroupCamera: TGroupBox;
-    LabelCamX: TLabel;
-    LabelCamY: TLabel;
-    LabelCamZ: TLabel;
-    ButtonCamSave: TButton;
-    ButtonCamLoad: TButton;
-    Label1: TLabel;
+    GroupApp: TGroupBox;
     procedure ButtonCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ButtonSaveClick(Sender: TObject);
-    procedure ButtonRunDemoClick(Sender: TObject);
+    procedure ButtonRunDemoClick(Sender: TObject); 
+    procedure CenterWindow();
   private
     { Private declarations }
   public
@@ -55,6 +61,7 @@ var
   Fields: TStringList;
   i: Integer;
 begin
+  CenterWindow;
   ClientDataSet1.CreateDataSet;
   ClientDataSet1.Open;
   AssignFile(CSVFile, 'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\screenplay.csv');
@@ -105,6 +112,12 @@ end;
 procedure TFormDirector.ButtonRunDemoClick(Sender: TObject);
 begin
   FormCC.OpenDemoWindow;
+end;
+
+procedure TFormDirector.CenterWindow();
+begin;
+  Left := (Screen.Width - Width) div 2;
+  Top := (Screen.Height - Height - 24) div 2;;
 end;
 
 end.

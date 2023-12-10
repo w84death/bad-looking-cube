@@ -1,10 +1,10 @@
 object FormDemo: TFormDemo
   Left = 152
-  Top = 132
+  Top = 245
   BorderIcons = []
-  BorderStyle = bsNone
-  Caption = 'Demo'
-  ClientHeight = 320
+  BorderStyle = bsSingle
+  Caption = 'Demo - Bad Looking Cube'
+  ClientHeight = 300
   ClientWidth = 640
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
