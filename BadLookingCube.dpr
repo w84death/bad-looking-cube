@@ -13,9 +13,8 @@ begin
   Application.Initialize;
   Application.Title := 'Bad Looking Cube';
   Application.CreateForm(TFormCC, FormCC);
-  Application.CreateForm(TFormDirector, FormDirector);
-  Application.CreateForm(TFormAbout, FormAbout);
   Application.CreateForm(TFormDemo, FormDemo);
-
+  Application.CreateForm(TFormAbout, FormAbout);
+  Application.CreateForm(TFormDirector, FormDirector);
   Application.Run;
 end.

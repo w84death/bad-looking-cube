@@ -64,7 +64,7 @@ begin
   CenterWindow;
   ClientDataSet1.CreateDataSet;
   ClientDataSet1.Open;
-  AssignFile(CSVFile, 'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\screenplay.csv');
+  AssignFile(CSVFile, 'screenplay.csv');
   Reset(CSVFile);
 
   Fields := TStringList.Create;
@@ -91,7 +91,7 @@ var
   Line: String;
   i: Integer;
 begin
-  AssignFile(CSVFile, 'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\screenplay.csv');
+  AssignFile(CSVFile, 'screenplay.csv');
   Rewrite(CSVFile);
   ClientDataSet1.First;
   while not ClientDataSet1.Eof do

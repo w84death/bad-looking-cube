@@ -77,8 +77,9 @@ type
     procedure Timer1Timer(Sender: TObject);
     procedure Direct();
     procedure Render();
-    function ReadOBJFile(const FileName: string): TModel;
-    procedure LoadCSVFile();
+    function ReadOBJFileFromResource(const ResourceName: string): TModel;
+    function LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double): TModel;
+    procedure LoadCSVResource();
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -111,7 +112,7 @@ var
   DemoLength: Double = 120.0;
   Screenplay: array of TScreenplayLine;
   ActiveLine: Integer = 0;
-  DemoRunning: Boolean = false;
+  DemoRunning: Boolean = true;
   MovementVector: TVertex = (X:0.0;Y:0.0;Z:0.0);
   Scene: TScene;
   DC: HDC;
@@ -125,6 +126,7 @@ implementation
 
 {$R *.dfm}
 {$R 'models.RES' 'models.rc'}
+//{$R 'screenplay.RES' 'screenplay.rc'}
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   KILL FLICKERING
 procedure TFormDemo.WMEraseBkgnd(var Message: TWMEraseBkgnd);
@@ -209,9 +211,10 @@ begin
   Invalidate;
 end;
 
-//    ---   ---   ---   ---   ---   ---   ---   ---   READ OBJ FILE
-function TFormDemo.ReadOBJFile(const FileName: string): TModel;
+//    ---   ---   ---   ---   ---   ---   ---   ---   READ OBJ RESOURCE FILE
+function TFormDemo.ReadOBJFileFromResource(const ResourceName: string): TModel;
 var
+  ResStream: TResourceStream;
   FileLines: TStringList;
   i,f: Integer;
   Line: string;
@@ -222,6 +225,7 @@ var
   Face: TFace;
   Model: TModel;
 begin
+  ResStream := TResourceStream.Create(HInstance, ResourceName, RT_RCDATA);
   FileLines := TStringList.Create;
   Parts := TStringList.Create;
   Parts.Delimiter := ' ';
@@ -229,7 +233,7 @@ begin
   FaceParts.Delimiter := '/';
 
   try
-    FileLines.LoadFromFile(FileName);
+    FileLines.LoadFromStream(ResStream);
 
     for i := 0 to FileLines.Count - 1 do
     begin
@@ -471,10 +475,23 @@ begin
   SwapBuffers(DC);
 end;
 
+//    ---   ---   ---   ---   ---   ---   ---   ---   LOAD MODEL
+function TFormDemo.LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double): TModel;
+var
+  Model: TModel;
+begin
+  Model := ReadOBJFileFromResource(Name);
+  Model.Position.X := X;
+  Model.Position.Y := Y;
+  Model.Position.Z := Z;
+  Model.Rotation.X := RX;
+  Model.Rotation.Y := RY;
+  Model.Rotation.Z := RZ;
+  Result := Model;
+end;
 
-//    ---   ---   ---   ---   ---   ---   ---   ---   LOAD CSV FILE
-
-procedure TFormDemo.LoadCSVFile();
+//    ---   ---   ---   ---   ---   ---   ---   ---   LOAD CSV RESOURCE/FILE
+procedure TFormDemo.LoadCSVResource();
 const
   _TIMESTAMP: Integer = 0;
   _ACTION: Integer = 1;
@@ -485,41 +502,38 @@ const
   _RX: Integer = 6;_R: Integer = 6;_VAL4: Integer = 6;
   _RY: Integer = 7;_G: Integer = 7;
   _RZ: Integer = 8;_B: Integer = 8;
+  SCREENPLAY_FROM_RES: Boolean = true;
 var
+  ResStream: TResourceStream;
+  CSVContent: TStringList;
   CSVFile: TextFile;
   Line: String;
   Fields: TStringList;
   Clone: TModelClone;
   LastModel: Integer;
   ScreenplayLine: TScreenplayLine;
-  f: Integer;
+  f,l: Integer;
+begin
+  //ResStream := TResourceStream.Create(HInstance, 'screenplay', RT_RCDATA);
+  //CSVContent := TStringList.Create;
+  //CSVContent.LoadFromStream(ResStream);
 
-//    ---   ---   ---   ---   ---   ---   ---   ---   LOAD MODEL
-function LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double): TModel;
-var
-  Model: TModel;
-begin
-  Model := ReadOBJFile('Models/'+Name+'.obj');
-  Model.Position.X := X;
-  Model.Position.Y := Y;
-  Model.Position.Z := Z;
-  Model.Rotation.X := RX;
-  Model.Rotation.Y := RY;
-  Model.Rotation.Z := RZ;
-  Result := Model;
-end;
-//    ---   ---   ---   ---   ---   ---   ---   ---   DECODE CSV DATA
-begin
-  AssignFile(CSVFile, 'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\screenplay.csv');
+  AssignFile(CSVFile, 'screenplay.csv');
   Reset(CSVFile);
+
   Fields := TStringList.Create;
   Fields.Delimiter := ',';
+
+  //    ---   ---   ---   ---   ---   ---   ---   ---   DECODE CSV DATA
   try
+    //for l := 0 to CSVContent.Count - 1 do
     while not Eof(CSVFile) do
     begin
-      ReadLn(CSVFile, Line);
-      Fields.DelimitedText := Line;
 
+      //Line := CSVContent[l];
+      ReadLn(CSVFile, Line);
+
+      Fields.DelimitedText := Line;
       if StrToFloat(Fields[_TIMESTAMP]) < 0 then
       begin
         if Fields[_ACTION] = 'load' then
@@ -606,7 +620,7 @@ begin
             StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
         end;
       end;
-
+   // ----------------- ------------------ ------------------ RUNTIME
       if StrToFloat(Fields[_TIMESTAMP]) >= 0 then
       begin
         ScreenplayLine.Timestamp :=  StrToFloat(Fields[_TIMESTAMP]);
@@ -632,7 +646,9 @@ begin
         Screenplay[High(Screenplay)] := ScreenplayLine;
       end;
     end;
-  finally
+  finally 
+    ResStream.Free;
+    CSVContent.Free;
     Fields.Free;
     CloseFile(CSVFile);
   end;
@@ -644,7 +660,7 @@ var
   PixelFormat: TPixelFormatDescriptor;
   FormatIndex: integer;
 begin
-  LoadCSVFile();
+  LoadCSVResource();
 
   DC := GetDC(Handle);
   FillChar(PixelFormat, SizeOf(PixelFormat), 0);
@@ -656,7 +672,7 @@ begin
       dwFlags := PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
       iPixelType := PFD_TYPE_RGBA;
       cColorBits := 8;
-      cDepthBits := 16;
+      cDepthBits := 32;
       iLayerType := PFD_MAIN_PLANE;
     end;
   FormatIndex := ChoosePixelFormat(DC, @PixelFormat);
@@ -781,6 +797,8 @@ end;
 procedure TFormDemo.FormCreate(Sender: TObject);
 begin
   CenterWindow;
+  
+  SetCurrentDir(ExtractFilePath(Application.ExeName));
   OldWindowStyle := GetWindowLong(Handle, GWL_STYLE);
 end;
 
