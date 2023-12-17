@@ -1,6 +1,6 @@
 object FormAbout: TFormAbout
-  Left = 245
-  Top = 231
+  Left = 236
+  Top = 215
   BorderIcons = [biSystemMenu]
   BorderStyle = bsNone
   Caption = 'About Bad Looking Cube'
@@ -485,7 +485,7 @@ object FormAbout: TFormAbout
     Left = 0
     Top = 0
     Width = 312
-    Height = 131
+    Height = 137
     Align = alClient
     Center = True
     Picture.Data = {
@@ -522,9 +522,9 @@ object FormAbout: TFormAbout
   end
   object Label1: TLabel
     Left = 0
-    Top = 131
+    Top = 137
     Width = 312
-    Height = 20
+    Height = 14
     Align = alBottom
     Alignment = taCenter
     Caption = 'Krzysztof Krystian Jankowski'

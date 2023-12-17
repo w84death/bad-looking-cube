@@ -1,17 +1,17 @@
 object FormDemo: TFormDemo
-  Left = 152
-  Top = 245
+  Left = 247
+  Top = 180
+  Width = 320
+  Height = 200
   BorderIcons = []
-  BorderStyle = bsSingle
   Caption = 'Demo - Bad Looking Cube'
-  ClientHeight = 300
-  ClientWidth = 640
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  FormStyle = fsStayOnTop
   Icon.Data = {
     0000010009002020100001000400E8020000960000001818100001000400E801
     00007E030000101010000100040028010000660500002020000001000800A808
@@ -478,6 +478,7 @@ object FormDemo: TFormDemo
     0000F01F0000F00F0000E0070000E0070000C0030000C0030000800300008001
     000080010000C0010000C0010000E0010000F01F0000F9FF0000FFFF0000}
   OldCreateOrder = False
+  Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy

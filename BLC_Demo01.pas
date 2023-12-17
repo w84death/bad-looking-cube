@@ -7,6 +7,7 @@ uses
   Dialogs, StdCtrls, jpeg, ComCtrls, ExtCtrls;
 
 type
+
   TFormCC = class(TForm)
     ButtonTerminate: TButton;
     ButtonRunDemo: TButton;
@@ -38,10 +39,11 @@ type
     procedure ButtonAboutClick(Sender: TObject);
     procedure TrackBarDemoTimeChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure ButtonShowDirectorClick(Sender: TObject); 
+    procedure ButtonShowDirectorClick(Sender: TObject);
     procedure CenterWindow();
   public
     procedure OpenDemoWindow();
+    function ToggleFreeCamera(): Boolean;
   end;
 
 const
@@ -71,6 +73,11 @@ begin
   TimerDemo.Enabled := true;
   BLC_Renderer.DemoRunning := true;
   RefreshTimer;
+end;
+
+function TFormCC.ToggleFreeCamera(): Boolean;
+begin
+  Result := FormDemo.ToggleFreeCamera();
 end;
 
 procedure TFormCC.ButtonRunDemoClick(Sender: TObject);

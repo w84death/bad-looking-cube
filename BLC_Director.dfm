@@ -1,6 +1,6 @@
 object FormDirector: TFormDirector
-  Left = 37
-  Top = 54
+  Left = 60
+  Top = 92
   Width = 740
   Height = 480
   BorderIcons = [biSystemMenu, biMinimize]
@@ -482,9 +482,9 @@ object FormDirector: TFormDirector
   TextHeight = 13
   object DBGrid1: TDBGrid
     Left = 0
-    Top = 126
+    Top = 113
     Width = 732
-    Height = 327
+    Height = 340
     Align = alClient
     BorderStyle = bsNone
     Color = clMoneyGreen
@@ -613,19 +613,6 @@ object FormDirector: TFormDirector
       ParentCtl3D = False
       ParentFont = False
       TabOrder = 1
-      object LabelCamZ: TLabel
-        Left = 40
-        Top = 18
-        Width = 118
-        Height = 15
-        Caption = 'SPACE FOR FUTURE USE'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clSkyBlue
-        Font.Height = -11
-        Font.Name = 'Arial Narrow'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
     end
     object GroupCamera: TGroupBox
       Left = 403
@@ -645,7 +632,7 @@ object FormDirector: TFormDirector
       ParentCtl3D = False
       ParentFont = False
       TabOrder = 2
-      object Label4: TLabel
+      object CamX: TLabel
         Left = 8
         Top = 18
         Width = 36
@@ -658,7 +645,7 @@ object FormDirector: TFormDirector
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object Label5: TLabel
+      object CamY: TLabel
         Left = 56
         Top = 18
         Width = 35
@@ -671,7 +658,7 @@ object FormDirector: TFormDirector
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object Label6: TLabel
+      object CamZ: TLabel
         Left = 104
         Top = 18
         Width = 35
@@ -684,8 +671,8 @@ object FormDirector: TFormDirector
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object Label7: TLabel
-        Left = 176
+      object CamRotY: TLabel
+        Left = 152
         Top = 18
         Width = 46
         Height = 15
@@ -697,7 +684,7 @@ object FormDirector: TFormDirector
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object Label8: TLabel
+      object CamDir: TLabel
         Left = 264
         Top = 10
         Width = 48
@@ -710,7 +697,7 @@ object FormDirector: TFormDirector
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object Label9: TLabel
+      object CamFree: TLabel
         Left = 264
         Top = 22
         Width = 25
@@ -722,6 +709,21 @@ object FormDirector: TFormDirector
         Font.Name = 'Arial Narrow'
         Font.Style = [fsBold]
         ParentFont = False
+      end
+      object ButtonFreeCam: TButton
+        Left = 216
+        Top = 10
+        Width = 40
+        Height = 25
+        Caption = 'FREE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        OnClick = ButtonFreeCamClick
       end
     end
     object GroupA: TGroupBox
@@ -808,13 +810,13 @@ object FormDirector: TFormDirector
       OnClick = ButtonCloseClick
     end
   end
-  object GroupApp: TGroupBox
+  object GroupStats: TGroupBox
     Left = 0
     Top = 82
     Width = 732
-    Height = 44
+    Height = 31
     Align = alTop
-    Caption = 'TOOLS'
+    Caption = 'STATS'
     Color = clBlack
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
@@ -826,6 +828,45 @@ object FormDirector: TFormDirector
     ParentCtl3D = False
     ParentFont = False
     TabOrder = 3
+    object LabelPolys: TLabel
+      Left = 12
+      Top = 14
+      Width = 78
+      Height = 15
+      Caption = 'POLYGONS: 9999'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object LabelFrameTime: TLabel
+      Left = 100
+      Top = 14
+      Width = 94
+      Height = 15
+      Caption = 'FRAMETIME: 15.0ms'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object LabelTimeline: TLabel
+      Left = 204
+      Top = 14
+      Width = 92
+      Height = 15
+      Caption = 'CAMERA TIMELINE:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
   end
   object DataSource1: TDataSource
     DataSet = ClientDataSet1
@@ -878,5 +919,11 @@ object FormDirector: TFormDirector
     StoreDefs = True
     Left = 56
     Top = 152
+  end
+  object TimerUIUpdate: TTimer
+    Interval = 30
+    OnTimer = TimerUIUpdateTimer
+    Left = 265
+    Top = 10
   end
 end

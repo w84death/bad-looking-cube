@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, OpenGL, SysUtils, Variants, Classes, Controls, Forms,
-  ExtCtrls,Messages, Math, DateUtils;
+  ExtCtrls,Messages, Math, DateUtils, MPlayer;
 
 type
   TColor = record
@@ -32,12 +32,20 @@ type
     Rotation: TVertex;
   end;
 
+  TScreenplayLine = record
+    Timestamp: GLfloat;
+    Action: String;
+    Name: String;
+    Params: array[0..5] of glFloat;
+  end;
+
   TModel = record
     Vertices: array of TVertex;
     Normals: array of TVertex;
     Faces: array of TFace;
     Position: TVertex;
     Rotation: TVertex;
+    Timeline: array of TScreenplayLine;
     Clones: array of TModelClone;
     Shading: Integer;
   end;
@@ -47,6 +55,7 @@ type
     Direction:  GLfloat;
     Lens: GLfloat;
     Free: boolean;
+    Timeline: array of TScreenplayLine;
   end;
 
   TFog = record
@@ -63,13 +72,6 @@ type
     Camera: TCamera;
     Fog: TFog;
     Models: array of TModel;
-  end;
-
-  TScreenplayLine = record
-    Timestamp: GLfloat;
-    Action: String;
-    Name: String;
-    Params: array[0..5] of glFloat;
   end;
 
   TFormDemo = class(TForm)
@@ -91,11 +93,15 @@ type
     procedure FormResize(Sender: TObject);
     procedure CenterWindow();
     procedure FormCreate(Sender: TObject);
+    function ToggleFreeCamera(): Boolean;
     private
       procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     public
       procedure InitDemo();
       procedure KillDemo();
+      function GetCameraStats(): TCamera;
+      function GetFrameTime(): Double;
+      function GetPolygons(): Integer;
    end;
 
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
@@ -122,6 +128,7 @@ var
   OldWindowStyle: Longint;
   FogColor: array[0..3] of GLfloat = (0.6,0.6,0.6,1.0);
   DeviceMode: TDevMode;
+  PolyCount: Integer = 0;
 implementation
 
 {$R *.dfm}
@@ -198,8 +205,6 @@ begin
 
   if DemoRunning then
   begin
-    //Scene.Models[High(Scene.Models)].Rotation.Z := 360 * Sin(DemoTime);
-    //Scene.Models[High(Scene.Models)].Rotation.X := 90 + 10 * Sin(DemoTime);
     DemoTime := DemoTime + FrameTime/1000;
     if DemoTime > DemoLength then
       DemoTime := 0.0;
@@ -308,8 +313,13 @@ end;
   Pos: glFloat;
   Prev, Next: Integer;
 function Lerp(A, B, T: glFloat): glFloat;
+var
+  TD: Double;
 begin
-  Result := A + (B - A) * T;
+  // Linear
+  // Result := A + (B - A) * T;
+  TD := (1-Cos(T*PI))/2;
+  Result := A*(1-TD)+B*TD;
 end;
 function CalcPos(A,B,T: glFloat): glFloat;
 begin
@@ -319,26 +329,25 @@ end;
   Result := Max(0.0,Min(Result,1.0));
 end;
 begin
-  Prev := 0;
-  for l := 1 to High(Screenplay) do
+
+  // CAMERA
+  for l := 1 to High(Scene.Camera.Timeline) do
   begin
-    if Screenplay[l].Action = 'camera' then
-      Prev := l;
-    Next := l+1;
-    if (DemoTime >= Screenplay[Prev].Timestamp) and
-      (Screenplay[Prev].Action = 'camera') and
-      (Screenplay[Prev].Name = 'pos') then
+    Prev := l-1;
+    Next := l;
+    if (DemoTime >= Scene.Camera.Timeline[Prev].Timestamp) then
     begin
-      Pos := CalcPos(Screenplay[Prev].Timestamp,Screenplay[Next].Timestamp,DemoTime);
+      Pos := CalcPos(Scene.Camera.Timeline[Prev].Timestamp,Scene.Camera.Timeline[Next].Timestamp,DemoTime);
       if Scene.Camera.Free = false then
       begin
-        Scene.Camera.X := Lerp(Screenplay[Prev].Params[_X],Screenplay[Next].Params[_X],Pos);
-        Scene.Camera.Y := Lerp(Screenplay[Prev].Params[_Y],Screenplay[Next].Params[_Y],Pos);
-        Scene.Camera.Z := Lerp(Screenplay[Prev].Params[_Z],Screenplay[Next].Params[_Z],Pos);
-        Scene.Camera.Direction := Lerp(Screenplay[Prev].Params[_RY],Screenplay[Next].Params[_RY],Pos);
+        Scene.Camera.X := Lerp(Scene.Camera.Timeline[Prev].Params[_X],Scene.Camera.Timeline[Next].Params[_X],Pos);
+        Scene.Camera.Y := Lerp(Scene.Camera.Timeline[Prev].Params[_Y],Scene.Camera.Timeline[Next].Params[_Y],Pos);
+        Scene.Camera.Z := Lerp(Scene.Camera.Timeline[Prev].Params[_Z],Scene.Camera.Timeline[Next].Params[_Z],Pos);
+        Scene.Camera.Direction := Lerp(Scene.Camera.Timeline[Prev].Params[_RY],Scene.Camera.Timeline[Next].Params[_RY],Pos);
       end;
     end;
-  end;
+  end;
+
 end;
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
@@ -388,6 +397,7 @@ begin
           glNormal3f(Normal.X,Normal.Y,Normal.Z);
           glVertex3f(Vert.X,Vert.Y,Vert.Z);
         end;
+        PolyCount := PolyCount + 1;
       glEnd;
     end;
     glPopMatrix();
@@ -397,7 +407,6 @@ begin
   CurrentTime := Now;
   FrameTime := MilliSecondsBetween(CurrentTime, LastFrameTime);
   LastFrameTime := CurrentTime;
-  Caption := Format('FrameTime: %.2fms', [FrameTime]);
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
@@ -419,6 +428,7 @@ begin
 
   glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
 
+  PolyCount := 0;
   RenderModel(Scene.Terrain);
   for m := Low(Scene.Models) to High(Scene.Models) do
   begin
@@ -433,6 +443,11 @@ begin
   end;
 end;
 
+function TFormDemo.ToggleFreeCamera(): Boolean;
+begin
+  Scene.Camera.Free := not Scene.Camera.Free;
+  Result := Scene.Camera.Free;
+end;
 
 procedure TFormDemo.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
@@ -446,7 +461,7 @@ begin
     Ord('E'): MovementVector.Y := MaxSpeed;
     Ord('A'): MovementVector.X := -MaxSpeed;
     Ord('D'): MovementVector.X := MaxSpeed;
-    Ord('F'): Scene.Camera.Free := not Scene.Camera.Free;
+    Ord('F'): ToggleFreeCamera;
     VK_F11:
      begin
     if WindowState = wsNormal then
@@ -455,7 +470,7 @@ begin
       //WindowState := wsMaximized;
       //SetBounds(0, 0, Screen.Width, Screen.Height);
       SetFullScreen(320,200);
-      glViewport(0, 20,320,160);
+      glViewport(0, 20,320,200);
     end
     else
     begin
@@ -523,6 +538,9 @@ begin
 
   Fields := TStringList.Create;
   Fields.Delimiter := ',';
+
+  SetLength(Scene.Models, 0);
+  SetLength(Scene.Camera.Timeline, 0);
 
   //    ---   ---   ---   ---   ---   ---   ---   ---   DECODE CSV DATA
   try
@@ -638,17 +656,27 @@ begin
           Break;
         end;
 
-        for f := 0 to 5 do
+        if Fields[_ACTION] = 'camera' then
         begin
-          ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
+          for f := 0 to 5 do
+          begin
+            ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
+          end;
+          SetLength(Scene.Camera.Timeline, Length(Scene.Camera.Timeline) + 1);
+          Scene.Camera.Timeline[High(Scene.Camera.Timeline)] := ScreenplayLine;
         end;
-        SetLength(Screenplay, Length(Screenplay) + 1);
-        Screenplay[High(Screenplay)] := ScreenplayLine;
+        
+        //for f := 0 to 5 do
+       // begin
+       //   ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
+       // end;
+       //// SetLength(Screenplay, Length(Screenplay) + 1);
+       // Screenplay[High(Screenplay)] := ScreenplayLine;
       end;
     end;
-  finally 
-    ResStream.Free;
-    CSVContent.Free;
+  finally
+    //ResStream.Free;
+    //CSVContent.Free;
     Fields.Free;
     CloseFile(CSVFile);
   end;
@@ -758,7 +786,7 @@ end;
 
 procedure TFormDemo.ResizeViewport();
 const
-  DesiredAspectRatio: GLfloat = 320.0 / 160.0;
+  DesiredAspectRatio: GLfloat = 320.0 / 200.0;
 var
   AspectRatio, ViewportWidth, ViewportHeight: GLfloat;
   ViewportX, ViewportY: Integer;
@@ -800,6 +828,21 @@ begin
   
   SetCurrentDir(ExtractFilePath(Application.ExeName));
   OldWindowStyle := GetWindowLong(Handle, GWL_STYLE);
+end;
+
+function TFormDemo.GetCameraStats(): TCamera;
+begin
+  Result := Scene.Camera;
+end;
+
+function TFormDemo.GetFrameTime(): Double;
+begin
+  Result := FrameTime;
+end;
+
+function TFormDemo.GetPolygons(): Integer;
+begin
+  Result := PolyCount;
 end;
 
 end.
