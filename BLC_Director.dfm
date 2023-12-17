@@ -533,7 +533,7 @@ object FormDirector: TFormDirector
         FieldName = 'prop'
         Title.Alignment = taCenter
         Title.Caption = 'PROPERTIY'
-        Width = 128
+        Width = 105
         Visible = True
       end
       item
@@ -541,7 +541,7 @@ object FormDirector: TFormDirector
         FieldName = 'x'
         Title.Alignment = taCenter
         Title.Caption = 'X'
-        Width = 95
+        Width = 82
         Visible = True
       end
       item
@@ -549,7 +549,7 @@ object FormDirector: TFormDirector
         FieldName = 'y'
         Title.Alignment = taCenter
         Title.Caption = 'Y'
-        Width = 89
+        Width = 73
         Visible = True
       end
       item
@@ -557,7 +557,7 @@ object FormDirector: TFormDirector
         FieldName = 'z'
         Title.Alignment = taCenter
         Title.Caption = 'Z'
-        Width = 89
+        Width = 70
         Visible = True
       end
       item
@@ -584,6 +584,13 @@ object FormDirector: TFormDirector
         Title.Alignment = taCenter
         Title.Caption = 'ROT Z'
         Width = 75
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'scale'
+        Title.Alignment = taCenter
+        Title.Caption = 'SCALE'
         Visible = True
       end>
   end
@@ -912,6 +919,10 @@ object FormDirector: TFormDirector
       end
       item
         Name = 'rz'
+        DataType = ftFloat
+      end
+      item
+        Name = 'scale'
         DataType = ftFloat
       end>
     IndexDefs = <>

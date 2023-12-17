@@ -30,13 +30,14 @@ type
   TModelClone = record
     Position: TVertex;
     Rotation: TVertex;
+    Scale: GLfloat;
   end;
 
   TScreenplayLine = record
     Timestamp: GLfloat;
     Action: String;
     Name: String;
-    Params: array[0..5] of glFloat;
+    Params: array[0..6] of glFloat;
   end;
 
   TModel = record
@@ -45,6 +46,7 @@ type
     Faces: array of TFace;
     Position: TVertex;
     Rotation: TVertex;
+    Scale: GLfloat;
     Timeline: array of TScreenplayLine;
     Clones: array of TModelClone;
     Shading: Integer;
@@ -76,11 +78,12 @@ type
 
   TFormDemo = class(TForm)
     Timer1: TTimer;
+    MediaPlayer1: TMediaPlayer;
     procedure Timer1Timer(Sender: TObject);
     procedure Direct();
     procedure Render();
     function ReadOBJFileFromResource(const ResourceName: string): TModel;
-    function LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double): TModel;
+    function LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double; SCALE: Double): TModel;
     procedure LoadCSVResource();
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -129,6 +132,7 @@ var
   FogColor: array[0..3] of GLfloat = (0.6,0.6,0.6,1.0);
   DeviceMode: TDevMode;
   PolyCount: Integer = 0;
+  
 implementation
 
 {$R *.dfm}
@@ -295,6 +299,8 @@ begin
   Model.Rotation.Y := 0.0;
   Model.Rotation.Z := 0.0;
 
+  Model.Scale := 0.0;
+
   Model.Shading := SHADE_SMOOTH;
   Result := Model;
 end;
@@ -305,9 +311,10 @@ end;
   _X: Integer = 0;_VAL1: Integer = 0;
   _Y: Integer = 1;_VAL2: Integer = 1;
   _Z: Integer = 2;_VAL3: Integer = 2;
-  _RX: Integer = 3;_R: Integer = 6;_VAL4: Integer = 6;
+  _RX: Integer = 3;_R: Integer = 3;_VAL4: Integer = 3;
   _RY: Integer = 4;_G: Integer = 4;
   _RZ: Integer = 5;_B: Integer = 5;
+  _SCALE: Integer = 6;
 var
   l: Integer;
   Pos: glFloat;
@@ -318,6 +325,8 @@ end;
 begin
   // Linear
   // Result := A + (B - A) * T;
+
+  // Cosinusoidalnie
   TD := (1-Cos(T*PI))/2;
   Result := A*(1-TD)+B*TD;
 end;
@@ -380,7 +389,8 @@ begin
     glRotatef(Model.Rotation.X, 1.0,0.0,0.0);
     glRotatef(Model.Rotation.Y, 0.0,1.0,0.0);
     glRotatef(Model.Rotation.Z, 0.0,0.0,1.0);
-
+    glScalef(Model.Scale,Model.Scale,Model.Scale);
+    
     glShadeModel(GL_SMOOTH);
     if Model.Shading = SHADE_FLAT then
       glShadeModel(GL_FLAT);
@@ -469,6 +479,7 @@ begin
       //SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) and not WS_CAPTION);
       //WindowState := wsMaximized;
       //SetBounds(0, 0, Screen.Width, Screen.Height);
+      BorderStyle := bsNone;
       SetFullScreen(320,200);
       glViewport(0, 20,320,200);
     end
@@ -478,7 +489,8 @@ begin
       //WindowState := wsNormal;
       //Width := 640;
       //Height := 400;
-      //CenterWindow; 
+      //CenterWindow;
+      BorderStyle := bsSizeable;
       ShowWindow(Application.Handle, SW_RESTORE);
     end;
   end;
@@ -491,7 +503,7 @@ begin
 end;
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   LOAD MODEL
-function TFormDemo.LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double): TModel;
+function TFormDemo.LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double; SCALE: Double): TModel;
 var
   Model: TModel;
 begin
@@ -502,6 +514,7 @@ begin
   Model.Rotation.X := RX;
   Model.Rotation.Y := RY;
   Model.Rotation.Z := RZ;
+  Model.Scale := SCALE;
   Result := Model;
 end;
 
@@ -517,6 +530,7 @@ const
   _RX: Integer = 6;_R: Integer = 6;_VAL4: Integer = 6;
   _RY: Integer = 7;_G: Integer = 7;
   _RZ: Integer = 8;_B: Integer = 8;
+  _SCALE: Integer = 9;
   SCREENPLAY_FROM_RES: Boolean = true;
 var
   ResStream: TResourceStream;
@@ -560,7 +574,8 @@ begin
           Scene.Models[High(Scene.Models)] := LoadModel(
             Fields[_NAME],
             StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
-            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
+            StrToFloat(Fields[_SCALE]));
         end;
         if Fields[_ACTION] = 'clone' then
         begin
@@ -571,6 +586,7 @@ begin
           Clone.Rotation.X := StrToFloat(Fields[_RX]);
           Clone.Rotation.Y := StrToFloat(Fields[_RY]);
           Clone.Rotation.Z := StrToFloat(Fields[_RZ]);
+          Clone.Scale := StrToFloat(Fields[_SCALE]);
 
           SetLength(Scene.Models[LastModel].Clones, Length(Scene.Models[LastModel].Clones) + 1);
           Scene.Models[LastModel].Clones[High(Scene.Models[LastModel].Clones)] := Clone;
@@ -613,7 +629,8 @@ begin
           Scene.Terrain := LoadModel(
             Fields[_NAME],
             StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
-            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
+            StrToFloat(Fields[_SCALE]));
         end;
         if Fields[_ACTION] = 'sun' then
         begin
@@ -635,7 +652,8 @@ begin
           Scene.Skybox := LoadModel(
             Fields[_NAME],
             StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
-            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]));
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
+            StrToFloat(Fields[_SCALE]));
         end;
       end;
    // ----------------- ------------------ ------------------ RUNTIME
@@ -737,6 +755,9 @@ begin
   glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.Sun.Color);
   glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
   LastFrameTime := Now;
+
+  MediaPlayer1.Play;
+  MediaPlayer1.StartPos := 0;
 end;
 
 
