@@ -746,7 +746,7 @@ begin
             ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
           end;
           ScreenplayLine.Linear := false;
-          if Fields[_PROP] = 'pos_' then
+          if Fields[_ACTION] = 'pos_' then
             ScreenplayLine.Linear := true;
           ID := FindModelByName(Fields[_NAME]);
           if ID>=0 then

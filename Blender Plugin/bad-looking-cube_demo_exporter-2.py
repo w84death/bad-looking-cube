@@ -20,7 +20,7 @@ import re
 bl_info = {
     "name": "Bad Looking Cube B3D Collection Exporter",
     "author": "Krzysztof Krystian Jankowski",
-    "version": (2, 2),
+    "version": (2, 3),
     "blender": (2, 80, 0),
     "location": "View3D > Sidebar > Bad Looking Cube Tab",
     "description": "Exports mesh data to a CSV file",
@@ -130,6 +130,10 @@ class ExportMeshData(bpy.types.Operator):
     def clean_name(self, name):
         return re.sub(r"\.\d{3}$", "", name)
     
+    def radians360(self, radian):
+        degree = math.degrees(radian)  # Convert radian to degree
+        return round(degree % 360,2)  # Normalize to 0-360
+    
     def execute(self, context):
         mesh_exporter = context.scene.mesh_exporter
         csv_file_path = bpy.path.abspath(mesh_exporter.file_path)
@@ -164,14 +168,14 @@ class ExportMeshData(bpy.types.Operator):
                 
                 writer.writerow(['-1', 'start', 'demo', 0,0,0,0,0,0,0])
                 
-                writer.writerow(['-1', 'skybox', skybox_name,   0,0,0,0,0,0,0])
-                writer.writerow(['-1', 'terrain', terrain_name, 0,0,0,0,0,0,0])
+                writer.writerow(['-1', 'skybox', skybox_name,   0,0,0,0,0,0,1])
+                writer.writerow(['-1', 'terrain', terrain_name, 0,0,0,0,0,0,1])
                 
                 if fog_enable:
-                    writer.writerow(['-1', 'fog', 'enable',fog_density,0,0,fog_color.r,fog_color.g,fog_color.b,0])
+                    writer.writerow(['-1', 'fog', 'enable',round(fog_density,4),0,0,round(fog_color.r,2),round(fog_color.g,2),round(fog_color.b,2),0])
                 
-                writer.writerow(['-1', 'sun', '',0,0,0,sun_color.r,sun_color.g,sun_color.b,0])
-                writer.writerow(['-1', 'ambient', '',0,0,0,ambient_color.r,ambient_color.g,ambient_color.b,0])
+                writer.writerow(['-1', 'sun', '',-2,1,1,round(sun_color.r,2),round(sun_color.g,2),round(sun_color.b,2),0])
+                writer.writerow(['-1', 'ambient', '',0,0,0,round(ambient_color.r,2),round(ambient_color.g,2),round(ambient_color.b,2),0])
 
                 collection = bpy.context.collection  # for example, the current context collection
                 sorted_objects = sorted(collection.all_objects, key=lambda obj: obj.name)
@@ -183,7 +187,6 @@ class ExportMeshData(bpy.types.Operator):
                     if obj.type == 'MESH':
                         loc = obj.location
                         rot = obj.rotation_euler
-                        rot_deg = [math.degrees(angle) % 360 for angle in rot]
                         scale = obj.scale.x                        
                         cleaned_name = self.clean_name(obj.name)
                         mode = 'clone'
@@ -191,7 +194,7 @@ class ExportMeshData(bpy.types.Operator):
                             last_object_name = cleaned_name
                             mode = 'load'
                         
-                        writer.writerow(['-1', mode, cleaned_name, -loc.x, loc.z, loc.y, rot_deg[0], rot_deg[2], rot_deg[1], scale])
+                        writer.writerow(['-1', mode, cleaned_name, round(loc.x,2), round(loc.z,2), round(loc.y,2), self.radians360(rot.x), self.radians360(rot.z), self.radians360(rot.y), round(scale,2)])
                 
                 for obj in collection.all_objects: 
                     if obj.animation_data and obj.animation_data.action:
@@ -216,13 +219,13 @@ class ExportMeshData(bpy.types.Operator):
                             # Get object's location and rotation in Euler angles
                             loc = obj.location
                             rot = obj.rotation_euler  # Assuming the object uses Euler rotation
-                            rot_deg = [math.degrees(angle) % 360 for angle in rot]
+                            #rot_deg = [math.degrees(angle) % 360 for angle in rot]
                             scale = obj.scale.x
                             cleaned_name = self.clean_name(obj.name)
                             mode = interpolation_modes[frame]
                             mode_name = 'pos' if mode == 'BEZIER' else 'pos_'
                             
-                            writer.writerow([time, mode_name, cleaned_name, -loc.x, loc.z, loc.y, rot_deg[0], rot_deg[2], rot_deg[1], scale])
+                            writer.writerow([round(time,1), mode_name, cleaned_name, round(loc.x,2), round(loc.z,2), round(loc.y,2), self.radians360(rot.x), self.radians360(rot.z), self.radians360(rot.y), round(scale,2)])
 
                 writer.writerow([demo_end_time, 'end', 'demo', 0,0,0,0,0,0,0])
         
