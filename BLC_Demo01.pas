@@ -132,13 +132,11 @@ begin
   begin
     TimerDemo.Enabled := false;
     DemoRunning := false;
-    FormDemo.MediaPlayer1.Pause;
   end
   else
   begin
     TimerDemo.Enabled := true;
     DemoRunning := true;
-    FormDemo.MediaPlayer1.Resume;
   end;
   RefreshTimer;
 end;

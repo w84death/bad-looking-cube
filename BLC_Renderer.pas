@@ -80,7 +80,6 @@ type
 
   TFormDemo = class(TForm)
     Timer1: TTimer;
-    MediaPlayer1: TMediaPlayer;
     procedure Timer1Timer(Sender: TObject);
     procedure Direct();
     procedure Render();
@@ -302,7 +301,7 @@ begin
   Model.Rotation.Y := 0.0;
   Model.Rotation.Z := 0.0;
 
-  Model.Scale := 0.0;
+  Model.Scale := 1.0;
 
   Model.Shading := SHADE_SMOOTH;
   Result := Model;
@@ -408,7 +407,7 @@ const
 var
   RadAngle: GLfloat;
 begin
-  RadAngle := -Direction * DegToRad;
+  RadAngle := Direction * DegToRad;
   Result.X := Sin(RadAngle);
   Result.Y := 0;
   Result.Z := Cos(RadAngle);
@@ -420,7 +419,7 @@ begin
   glPushMatrix();
     glTranslatef(Model.Position.X, Model.Position.Y, Model.Position.Z);
     glRotatef(Model.Rotation.X, 1.0,0.0,0.0);
-    glRotatef(Model.Rotation.Y, 0.0,1.0,0.0);
+    glRotatef(180+Model.Rotation.Y, 0.0,1.0,0.0);
     glRotatef(Model.Rotation.Z, 0.0,0.0,1.0);
     glScalef(Model.Scale,Model.Scale,Model.Scale);
     
@@ -443,7 +442,7 @@ begin
         PolyCount := PolyCount + 1;
       glEnd;
     end;
-    glPopMatrix();
+  glPopMatrix();
 end;
 
 begin
@@ -456,7 +455,7 @@ begin
   glLoadIdentity();
   CameraTarget := CalculateLookAtTarget(Scene.Camera.Direction);
   gluLookAt(Scene.Camera.X, Scene.Camera.Y, Scene.Camera.Z,
-            Scene.Camera.X-CameraTarget.X, Scene.Camera.Y, Scene.Camera.Z-CameraTarget.Z,
+            Scene.Camera.X+CameraTarget.X, Scene.Camera.Y+0.2, Scene.Camera.Z+CameraTarget.Z,
             0, 1, 0);
 
   glDisable(GL_LIGHTING);
@@ -481,6 +480,7 @@ begin
     begin
       Model.Position := Model.Clones[c].Position;
       Model.Rotation := Model.Clones[c].Rotation;
+      Model.Scale := Model.Clones[c].Scale;
       RenderModel(Model);
     end
   end;
@@ -652,15 +652,8 @@ begin
           if Fields[_PROP] = 'flat' then
             Scene.Models[LastModel].Shading := SHADE_FLAT;
         end;
-        if Fields[_ACTION] = 'camera' then
+        if Fields[_ACTION] = 'Camera' then
         begin
-           if Fields[_PROP] = 'pos' then
-           begin
-            Scene.Camera.X := StrToFloat(Fields[_X]);
-            Scene.Camera.Y := StrToFloat(Fields[_Y]);
-            Scene.Camera.Z := StrToFloat(Fields[_Z]);
-            Scene.Camera.Direction := StrToFloat(Fields[_RY]);
-           end;
            if Fields[_PROP] = 'lens' then
             Scene.Camera.Lens := StrToFloat(Fields[_VAL1]);
         end;
@@ -682,7 +675,7 @@ begin
           Scene.Terrain := LoadModel(
             Fields[_NAME],
             StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
-            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
+            StrToFloat(Fields[_RX]), 180 + StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
             StrToFloat(Fields[_SCALE]));
         end;
         if Fields[_ACTION] = 'sun' then
@@ -727,35 +720,34 @@ begin
           Break;
         end;
 
-        if Fields[_ACTION] = 'camera' then
-        begin
-          for f := 0 to 5 do
-          begin
-            ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
-          end;
-          if Fields[_PROP] = 'pos_' then
-            ScreenplayLine.Linear := true;
-          SetLength(Scene.Camera.Timeline, Length(Scene.Camera.Timeline) + 1);
-          Scene.Camera.Timeline[High(Scene.Camera.Timeline)] := ScreenplayLine;
-        end;
-
         if (Fields[_ACTION] = 'pos') or (Fields[_ACTION] = 'pos_') then
         begin
           for f := 0 to 5 do
           begin
             ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
           end;
-          ScreenplayLine.Linear := false;
-          if Fields[_ACTION] = 'pos_' then
-            ScreenplayLine.Linear := true;
-          ID := FindModelByName(Fields[_NAME]);
-          if ID>=0 then
+          ScreenplayLine.Params[4] := ScreenplayLine.Params[4];
+
+          if Fields[_PROP] = 'Camera' then
           begin
-            SetLength(Scene.Models[ID].Timeline, Length(Scene.Models[ID].Timeline) + 1);
-            Scene.Models[ID].Timeline[High(Scene.Models[ID].Timeline)] := ScreenplayLine;
+            if Fields[_ACTION] = 'pos_' then
+              ScreenplayLine.Linear := true;
+            SetLength(Scene.Camera.Timeline, Length(Scene.Camera.Timeline) + 1);
+            Scene.Camera.Timeline[High(Scene.Camera.Timeline)] := ScreenplayLine;
+          end
+          else
+          begin
+            ScreenplayLine.Linear := false;
+            if Fields[_ACTION] = 'pos_' then
+              ScreenplayLine.Linear := true;
+            ID := FindModelByName(Fields[_NAME]);
+            if ID>=0 then
+            begin
+              SetLength(Scene.Models[ID].Timeline, Length(Scene.Models[ID].Timeline) + 1);
+              Scene.Models[ID].Timeline[High(Scene.Models[ID].Timeline)] := ScreenplayLine;
+            end;
           end;
         end;
-
       end;
     end;
   finally
@@ -822,8 +814,6 @@ begin
   glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
   LastFrameTime := Now;
 
-  MediaPlayer1.Play;
-  MediaPlayer1.StartPos := 0;
 end;
 
 

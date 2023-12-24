@@ -488,21 +488,6 @@ object FormDemo: TFormDemo
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object MediaPlayer1: TMediaPlayer
-    Left = 8
-    Top = 40
-    Width = 29
-    Height = 30
-    EnabledButtons = [btPlay]
-    VisibleButtons = [btPlay]
-    AutoOpen = True
-    Display = MediaPlayer1
-    FileName = 
-      'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\Tunes\t' +
-      'une0.mid'
-    Visible = False
-    TabOrder = 0
-  end
   object Timer1: TTimer
     Tag = 9
     Interval = 15
