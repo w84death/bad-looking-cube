@@ -587,6 +587,7 @@ object FormDirector: TFormDirector
         Visible = True
       end
       item
+        Alignment = taCenter
         Expanded = False
         FieldName = 'scale'
         Title.Alignment = taCenter

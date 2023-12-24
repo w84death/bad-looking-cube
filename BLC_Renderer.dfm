@@ -498,8 +498,8 @@ object FormDemo: TFormDemo
     AutoOpen = True
     Display = MediaPlayer1
     FileName = 
-      'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\Tunes\m' +
-      'idi-01.mid'
+      'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\Tunes\t' +
+      'une0.mid'
     Visible = False
     TabOrder = 0
   end

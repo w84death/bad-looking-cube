@@ -38,9 +38,11 @@ type
     Action: String;
     Name: String;
     Params: array[0..6] of glFloat;
+    Linear: Boolean;
   end;
 
   TModel = record
+    Name: String;
     Vertices: array of TVertex;
     Normals: array of TVertex;
     Faces: array of TFace;
@@ -82,6 +84,7 @@ type
     procedure Timer1Timer(Sender: TObject);
     procedure Direct();
     procedure Render();
+    function FindModelByName(Name: String): Integer;
     function ReadOBJFileFromResource(const ResourceName: string): TModel;
     function LoadModel(Name: string; X,Y,Z: Double; RX,RY,RZ: Double; SCALE: Double): TModel;
     procedure LoadCSVResource();
@@ -204,7 +207,7 @@ begin
   end;
 
 
-  //    ---   ---   ---   ---   ---   ---   ---   ---   NEW FAME
+  //    ---   ---   ---   ---   ---   ---   ---   ---   NEW FRAME
 
 
   if DemoRunning then
@@ -316,19 +319,25 @@ end;
   _RZ: Integer = 5;_B: Integer = 5;
   _SCALE: Integer = 6;
 var
-  l: Integer;
+  l,m: Integer;
+  linear: Boolean;
   Pos: glFloat;
   Prev, Next: Integer;
-function Lerp(A, B, T: glFloat): glFloat;
+function Lerp(A, B, T: glFloat; Linear: Boolean): glFloat;
 var
   TD: Double;
 begin
-  // Linear
-  // Result := A + (B - A) * T;
+  if Linear then
+  begin
+    Result := A + (B - A) * T;
+  end
+  else
+  begin
 
   // Cosinusoidalnie
   TD := (1-Cos(T*PI))/2;
   Result := A*(1-TD)+B*TD;
+  end;
 end;
 function CalcPos(A,B,T: glFloat): glFloat;
 begin
@@ -349,14 +358,38 @@ end;
       Pos := CalcPos(Scene.Camera.Timeline[Prev].Timestamp,Scene.Camera.Timeline[Next].Timestamp,DemoTime);
       if Scene.Camera.Free = false then
       begin
-        Scene.Camera.X := Lerp(Scene.Camera.Timeline[Prev].Params[_X],Scene.Camera.Timeline[Next].Params[_X],Pos);
-        Scene.Camera.Y := Lerp(Scene.Camera.Timeline[Prev].Params[_Y],Scene.Camera.Timeline[Next].Params[_Y],Pos);
-        Scene.Camera.Z := Lerp(Scene.Camera.Timeline[Prev].Params[_Z],Scene.Camera.Timeline[Next].Params[_Z],Pos);
-        Scene.Camera.Direction := Lerp(Scene.Camera.Timeline[Prev].Params[_RY],Scene.Camera.Timeline[Next].Params[_RY],Pos);
+        linear := Scene.Camera.Timeline[Next].Linear;
+        Scene.Camera.X := Lerp(Scene.Camera.Timeline[Prev].Params[_X],Scene.Camera.Timeline[Next].Params[_X],Pos,linear);
+        Scene.Camera.Y := Lerp(Scene.Camera.Timeline[Prev].Params[_Y],Scene.Camera.Timeline[Next].Params[_Y],Pos,linear);
+        Scene.Camera.Z := Lerp(Scene.Camera.Timeline[Prev].Params[_Z],Scene.Camera.Timeline[Next].Params[_Z],Pos,linear);
+        Scene.Camera.Direction := Lerp(Scene.Camera.Timeline[Prev].Params[_RY],Scene.Camera.Timeline[Next].Params[_RY],Pos,linear);
       end;
     end;
   end;
 
+  // MODELS
+  for m := 0 to High(Scene.Models) do
+  begin
+
+  for l := 1 to High(Scene.Models[m].Timeline) do
+  begin
+    Prev := l-1;
+    Next := l;
+    if (DemoTime >= Scene.Models[m].Timeline[Prev].Timestamp) then
+    begin
+      Pos := CalcPos(Scene.Models[m].Timeline[Prev].Timestamp,Scene.Models[m].Timeline[Next].Timestamp,DemoTime);
+
+      linear := Scene.Models[m].Timeline[Next].Linear;
+      Scene.Models[m].Position.X := Lerp(Scene.Models[m].Timeline[Prev].Params[_X],Scene.Models[m].Timeline[Next].Params[_X],Pos,linear);
+      Scene.Models[m].Position.Y := Lerp(Scene.Models[m].Timeline[Prev].Params[_Y],Scene.Models[m].Timeline[Next].Params[_Y],Pos,linear);
+      Scene.Models[m].Position.Z := Lerp(Scene.Models[m].Timeline[Prev].Params[_Z],Scene.Models[m].Timeline[Next].Params[_Z],Pos,linear);
+
+      Scene.Models[m].Rotation.X := Lerp(Scene.Models[m].Timeline[Prev].Params[_RX],Scene.Models[m].Timeline[Next].Params[_RX],Pos,linear);
+      Scene.Models[m].Rotation.Y := Lerp(Scene.Models[m].Timeline[Prev].Params[_RY],Scene.Models[m].Timeline[Next].Params[_RY],Pos,linear);
+      Scene.Models[m].Rotation.Z := Lerp(Scene.Models[m].Timeline[Prev].Params[_RZ],Scene.Models[m].Timeline[Next].Params[_RZ],Pos,linear);
+    end;
+  end;
+  end;
 end;
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
@@ -508,6 +541,7 @@ var
   Model: TModel;
 begin
   Model := ReadOBJFileFromResource(Name);
+  Model.Name := Name;
   Model.Position.X := X;
   Model.Position.Y := Y;
   Model.Position.Z := Z;
@@ -516,6 +550,24 @@ begin
   Model.Rotation.Z := RZ;
   Model.Scale := SCALE;
   Result := Model;
+end;
+
+function TFormDemo.FindModelByName(Name: String): Integer;
+var
+  i: Integer;
+  modelID: Integer;
+begin
+  modelID := -1;
+  for i := 0 to High(Scene.Models) do
+  begin
+    if Scene.Models[i].Name = Name then
+    begin
+      modelID := i;
+      break;
+    end;
+  end;
+  
+  Result := modelID;
 end;
 
 //    ---   ---   ---   ---   ---   ---   ---   ---   LOAD CSV RESOURCE/FILE
@@ -533,15 +585,16 @@ const
   _SCALE: Integer = 9;
   SCREENPLAY_FROM_RES: Boolean = true;
 var
-  ResStream: TResourceStream;
-  CSVContent: TStringList;
+  //ResStream: TResourceStream;
+  //CSVContent: TStringList;
   CSVFile: TextFile;
   Line: String;
   Fields: TStringList;
   Clone: TModelClone;
   LastModel: Integer;
   ScreenplayLine: TScreenplayLine;
-  f,l: Integer;
+  f: Integer;
+  ID: Integer;
 begin
   //ResStream := TResourceStream.Create(HInstance, 'screenplay', RT_RCDATA);
   //CSVContent := TStringList.Create;
@@ -680,16 +733,29 @@ begin
           begin
             ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
           end;
+          if Fields[_PROP] = 'pos_' then
+            ScreenplayLine.Linear := true;
           SetLength(Scene.Camera.Timeline, Length(Scene.Camera.Timeline) + 1);
           Scene.Camera.Timeline[High(Scene.Camera.Timeline)] := ScreenplayLine;
         end;
-        
-        //for f := 0 to 5 do
-       // begin
-       //   ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
-       // end;
-       //// SetLength(Screenplay, Length(Screenplay) + 1);
-       // Screenplay[High(Screenplay)] := ScreenplayLine;
+
+        if (Fields[_ACTION] = 'pos') or (Fields[_ACTION] = 'pos_') then
+        begin
+          for f := 0 to 5 do
+          begin
+            ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
+          end;
+          ScreenplayLine.Linear := false;
+          if Fields[_PROP] = 'pos_' then
+            ScreenplayLine.Linear := true;
+          ID := FindModelByName(Fields[_NAME]);
+          if ID>=0 then
+          begin
+            SetLength(Scene.Models[ID].Timeline, Length(Scene.Models[ID].Timeline) + 1);
+            Scene.Models[ID].Timeline[High(Scene.Models[ID].Timeline)] := ScreenplayLine;
+          end;
+        end;
+
       end;
     end;
   finally
