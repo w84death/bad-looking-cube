@@ -1,3 +1,16 @@
+"""
+Bad Looking Cube B3D Collection Exporter
+
+This Blender add-on exports selected mesh object data to a CSV file, allowing users to export 
+key scene and object properties, including object names, positions, rotations, scales, and 
+animation keyframes with their respective interpolation modes.
+
+Read more at https://scene.p1x.in/#blc
+
+(c)2023.12 Krzysztof Krystian Jankowski https://krzysztofjankowski.com/
+"""
+
+
 import bpy
 import csv
 import os
@@ -20,7 +33,7 @@ bl_info = {
 
 class MeshExporterProperties(bpy.types.PropertyGroup):
     # DEMO end time
-    demo_end_time: bpy.props.FloatProperty(name="Demo End Time")
+    demo_end_time: bpy.props.FloatProperty(name="Demo End Time (sec)")
 
     # SKYBOX model selection
     skybox_model: bpy.props.PointerProperty(
@@ -57,8 +70,8 @@ class MeshExporterProperties(bpy.types.PropertyGroup):
         default=(0.5, 0.5, 0.5),
         min=0.0,
         max=1.0)
-    fog_density: bpy.props.FloatProperty(name="Fog Density", default=0.003, min=0.0)
-
+    fog_density: bpy.props.FloatProperty(name="Fog Density", default=0.025, min=0.0,precision=4)
+    
     file_path: bpy.props.StringProperty(
         name="File Path",
         description="Path to save the CSV file",
@@ -82,31 +95,37 @@ class MeshExporterPanel(bpy.types.Panel):
         scene = context.scene
         mesh_exporter = scene.mesh_exporter
             
-        # DEMO end time
-        layout.prop(mesh_exporter, "demo_end_time")
-
-        # Skybox and Terrain Model Selectors
-        layout.prop(mesh_exporter, "skybox_model")
-        layout.prop(mesh_exporter, "terrain_model")
-
-        # Sun and Ambient Color
-        layout.prop(mesh_exporter, "sun_color", text="Sun Color")
-        layout.prop(mesh_exporter, "ambient_color", text="Ambient Color")
-
-        # Fog Settings
-        layout.prop(mesh_exporter, "fog_enable", text="Enable Fog")
+        layout.label(text="Created for **Bad Looking Cube** demo tool.")
+        
+         # Scene Settings
+        scene_box = layout.box()
+        scene_box.label(text="Scene Settings")
+        scene_box.prop(mesh_exporter, "demo_end_time")
+        scene_box.prop(mesh_exporter, "skybox_model")
+        scene_box.prop(mesh_exporter, "terrain_model")
+        scene_box.prop(mesh_exporter, "sun_color", text="Sun Color")
+        scene_box.prop(mesh_exporter, "ambient_color", text="Ambient Color")
+        scene_box.prop(mesh_exporter, "fog_enable", text="Enable Fog")
         if mesh_exporter.fog_enable:
-            layout.prop(mesh_exporter, "fog_color", text="Fog Color")
-            layout.prop(mesh_exporter, "fog_density", text="Fog Density")
+            scene_box.prop(mesh_exporter, "fog_color", text="Fog Color")
+            scene_box.prop(mesh_exporter, "fog_density", text="Fog Density")
         
         
-        layout.prop(mesh_exporter, "file_path")
-        layout.prop_search(mesh_exporter, "collection", bpy.data, "collections")
-        layout.operator("export.mesh_data")
+        # Export Settings
+        export_box = layout.box()
+        export_box.label(text="Export Settings")
+        export_box.prop(mesh_exporter, "file_path")
+        export_box.prop_search(mesh_exporter, "collection", bpy.data, "collections")
+        
+        
+        # Export/Save
+        save_box = layout.box()
+        save_box.operator("export.mesh_data")
+        save_box.label(text="Make demos!")
 
 class ExportMeshData(bpy.types.Operator):
     bl_idname = "export.mesh_data"
-    bl_label = "Export Mesh Data"
+    bl_label = "Export Screenplay"
     
     def clean_name(self, name):
         return re.sub(r"\.\d{3}$", "", name)

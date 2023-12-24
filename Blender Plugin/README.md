@@ -1,7 +1,7 @@
 # Bad Looking Cube B3D Collection Exporter
 
 ## Overview
-![Screenshot](screenshot.png)
+![Screenshot](screenshot-v2.png)
 The Bad Looking Cube B3D Collection Exporter is a Blender add-on for exporting mesh data to a CSV file format. It's designed to be a simple yet effective tool for users needing to transport Blender mesh data into a universally accessible format. This add-on is especially useful for artists, developers, and anyone interested in processing or analyzing mesh data outside of Blender.
 
 ## Features
