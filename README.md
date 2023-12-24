@@ -1,15 +1,14 @@
 # BAD LOOKING CUBE
 Demo(tool) for Windows made using Delphi 7, Pascal, and OpenGL technologies.
 
-![BLC on Win11](https://cdn.fosstodon.org/media_attachments/files/111/402/767/078/576/578/original/68c821125a5ae5cc.png)
-
-
+![BLC on Win11](demo-01.png)
 
 ## Download
-I will combine evrything into single binary at the end. For now download those files:
-
-- BadLookingCube.exe
-- Models/*
+### Demotool
+- Release/BadLookingCube.exe
+- Release/screenplay.csv
+### Standalone Demo
+- TBA
 
 ## Run
 I succesfully run the binary on those systems:
@@ -28,7 +27,6 @@ On the actual retromachine:
 - Windows 2000
 - Delphi 7 (Pascal)
 - OpenGL (1.x)
-- Paint Shop Pro 8
 
 On modern machine:
 - ChatGPT - [GPT: Retro Code Companion // Delphi Edition](https://chat.openai.com/g/g-UmgMxLwjM-retro-code-companion-delphi-edition)
