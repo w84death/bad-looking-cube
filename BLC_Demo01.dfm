@@ -1,10 +1,10 @@
 object FormCC: TFormCC
   Left = 215
-  Top = 441
+  Top = 435
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Command & Control - Bad Looking Cube'
-  ClientHeight = 68
+  Caption = 'DEMO-01 _.:|[ Command & Control of Bad Looking Cube ]|:._'
+  ClientHeight = 74
   ClientWidth = 504
   Color = clGray
   Font.Charset = DEFAULT_CHARSET
@@ -487,7 +487,7 @@ object FormCC: TFormCC
     Left = 0
     Top = 0
     Width = 242
-    Height = 45
+    Height = 51
     Align = alLeft
     Caption = 'PLAYBACK'
     Color = clBackground
@@ -582,9 +582,9 @@ object FormCC: TFormCC
     Left = 242
     Top = 0
     Width = 150
-    Height = 45
+    Height = 51
     Align = alClient
-    Caption = 'TIMER - TIMESTAMP'
+    Caption = 'TIMESTAMP'
     Color = clNavy
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
@@ -600,7 +600,7 @@ object FormCC: TFormCC
       Left = 1
       Top = 9
       Width = 148
-      Height = 35
+      Height = 41
       Align = alClient
       Alignment = taCenter
       Caption = '0.00'
@@ -612,11 +612,12 @@ object FormCC: TFormCC
       Font.Style = []
       ParentColor = False
       ParentFont = False
+      Layout = tlCenter
     end
   end
   object TrackBarDemoTime: TTrackBar
     Left = 0
-    Top = 45
+    Top = 51
     Width = 504
     Height = 23
     Cursor = crUpArrow
@@ -632,7 +633,7 @@ object FormCC: TFormCC
     Left = 392
     Top = 0
     Width = 112
-    Height = 45
+    Height = 51
     Align = alRight
     Caption = 'STATS'
     Color = clGreen
@@ -649,11 +650,42 @@ object FormCC: TFormCC
     Visible = False
     object LabelPolys: TLabel
       Left = 1
-      Top = 9
+      Top = 17
+      Width = 110
+      Height = 12
+      Align = alTop
+      Alignment = taCenter
+      Caption = '00000000'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
+      ParentFont = False
+    end
+    object LabelFrameTime: TLabel
+      Left = 1
+      Top = 37
+      Width = 110
+      Height = 12
+      Align = alTop
+      Alignment = taCenter
+      Caption = '15ms'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label1: TLabel
+      Left = 1
+      Top = 29
       Width = 110
       Height = 8
       Align = alTop
-      Caption = 'Polygons: 9999'
+      Alignment = taCenter
+      Caption = 'FrameTime:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWhite
       Font.Height = -8
@@ -661,13 +693,14 @@ object FormCC: TFormCC
       Font.Style = []
       ParentFont = False
     end
-    object LabelFrameTime: TLabel
+    object Label2: TLabel
       Left = 1
-      Top = 17
+      Top = 9
       Width = 110
       Height = 8
       Align = alTop
-      Caption = 'FrameTime: 15ms'
+      Alignment = taCenter
+      Caption = 'Polygons:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWhite
       Font.Height = -8
@@ -680,10 +713,12 @@ object FormCC: TFormCC
     Enabled = False
     Interval = 30
     OnTimer = TimerDemoTimer
-    Left = 56
+    Left = 112
+    Top = 48
   end
   object MainMenu1: TMainMenu
-    Left = 27
+    Left = 83
+    Top = 48
     object DEMO1: TMenuItem
       Caption = 'DEMO-01'
       object MenuStartDemo: TMenuItem

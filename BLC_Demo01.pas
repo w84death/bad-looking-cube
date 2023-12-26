@@ -33,6 +33,8 @@ type
     SET640x4801: TMenuItem;
     MenuStartDemo: TMenuItem;
     Center1: TMenuItem;
+    Label1: TLabel;
+    Label2: TLabel;
     procedure RefreshTimer();
     procedure TimerDemoTimer(Sender: TObject);
     procedure ButtonPauseClick(Sender: TObject);
@@ -131,8 +133,8 @@ end;
 procedure TFormCC.TimerDemoTimer(Sender: TObject);
 begin
   RefreshTimer();
-  LabelPolys.Caption := Format('Polygons: %d', [FormDemo.GetPolygons]);
-  LabelFrameTime.Caption := Format('FrameTime: %.2fms', [FormDemo.GetFrameTime]);
+  LabelPolys.Caption := Format('%d', [FormDemo.GetPolygons]);
+  LabelFrameTime.Caption := Format('%.2fms', [FormDemo.GetFrameTime]);
 end;
 
 

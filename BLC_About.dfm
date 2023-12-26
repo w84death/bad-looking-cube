@@ -1,6 +1,6 @@
 object FormAbout: TFormAbout
-  Left = 195
-  Top = 171
+  Left = 259
+  Top = 176
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'About Bad Looking Cube'
@@ -530,10 +530,10 @@ object FormAbout: TFormAbout
     Caption = 'VERSION 26-12-2023'
     Color = clNavy
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clMedGray
+    Font.Color = clWhite
     Font.Height = -12
     Font.Name = 'Terminal'
-    Font.Style = [fsBold, fsItalic]
+    Font.Style = [fsItalic]
     ParentColor = False
     ParentFont = False
   end
@@ -555,7 +555,7 @@ object FormAbout: TFormAbout
   object RichAbout: TRichEdit
     Left = 0
     Top = 0
-    Width = 185
+    Width = 193
     Height = 203
     Cursor = crCross
     Align = alLeft
@@ -581,8 +581,8 @@ object FormAbout: TFormAbout
       'Created November 2023 by '
       'Krzysztof Krystian Jankowski'
       ''
-      'Visit https://scene.p1x.in for '
-      'more information and latest '
+      'Visit [https://scene.p1x.in] '
+      'for more information and latest '
       'releases.')
     ParentCtl3D = False
     ParentFont = False

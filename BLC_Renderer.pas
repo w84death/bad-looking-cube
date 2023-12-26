@@ -261,7 +261,7 @@ begin
   Result := Model;
 end;
 
-//    ---   ---   ---   ---   ---   ---   ---   ---   DIRECT
+//    ---   ---   ---   ---   ---   ---   ---   ---   DIRECT  
 procedure TFormDemo.Direct();
 const
   _X: Integer = 0;_VAL1: Integer = 0;
@@ -353,8 +353,68 @@ end;
   end;
 end;
 
-//    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
 
+function IsObjectVisible(const Camera: TCamera; const ObjectPos: TVertex): Boolean;
+var
+  ForwardVector, ToObjectVector: TVertex;
+  DotProd: GLfloat;
+function RotateVector(const Vec: TVertex; const Rot: TVertex): TVertex;
+var
+  RadX, RadY, RadZ: GLfloat;
+  SinX, SinY, SinZ, CosX, CosY, CosZ: GLfloat;
+  TempVec: TVertex;
+begin
+  // Convert degrees to radians
+  RadX := DegToRad(Rot.X);
+  RadY := DegToRad(Rot.Y);
+  RadZ := DegToRad(Rot.Z);
+
+  // Calculate sine and cosine for each rotation
+  SinX := Sin(RadX); CosX := Cos(RadX);
+  SinY := Sin(RadY); CosY := Cos(RadY);
+  SinZ := Sin(RadZ); CosZ := Cos(RadZ);
+
+  // Rotate around X-axis
+  TempVec.Y := Vec.Y * CosX - Vec.Z * SinX;
+  TempVec.Z := Vec.Y * SinX + Vec.Z * CosX;
+  TempVec.X := Vec.X;
+
+  // Rotate around Y-axis
+  TempVec.Z := TempVec.Z * CosY - TempVec.X * SinY;
+  TempVec.X := TempVec.Z * SinY + TempVec.X * CosY;
+
+  // Rotate around Z-axis
+  TempVec.X := Vec.X * CosZ - Vec.Y * SinZ;
+  TempVec.Y := Vec.X * SinZ + Vec.Y * CosZ;
+  TempVec.Z := Vec.Z;
+
+  Result := TempVec;
+end;
+begin
+  // Assuming you have already implemented a function to rotate the forward vector
+  // Initialize the forward direction (looking towards -z in OpenGL by default)
+  ForwardVector.X := 0;
+  ForwardVector.Y := 0;
+  ForwardVector.Z := 1;
+
+  // Apply rotation to get the current forward vector of the camera
+  ForwardVector := RotateVector(ForwardVector, Camera.Rotation);
+
+  // Calculate the vector from the camera to the object
+  ToObjectVector.X := ObjectPos.X - Camera.Position.X;
+  ToObjectVector.Y := ObjectPos.Y - Camera.Position.Y;
+  ToObjectVector.Z := ObjectPos.Z - Camera.Position.Z;
+
+  // Calculate the dot product
+  DotProd := ForwardVector.X * ToObjectVector.X +
+             ForwardVector.Y * ToObjectVector.Y +
+             ForwardVector.Z * ToObjectVector.Z;
+
+  // If dot product is less than 0, object is behind the camera
+  Result := DotProd > 0;
+end;
+
+//    ---   ---   ---   ---   ---   ---   ---   ---   RENDER
 procedure TFormDemo.Render();
 var
   m,c: Integer;
@@ -413,11 +473,11 @@ begin
   glDisable(GL_FOG);
   RenderModel(Scene.Skybox);
   glDepthMask(GL_TRUE);
-  //glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHTING);
+
 
   if Scene.Fog.Enabled then
     glEnable(GL_FOG);
-
 
   // CAMERA
   glRotatef(90-Scene.Camera.Rotation.X, 1.0,0.0,0.0);
@@ -425,6 +485,7 @@ begin
   glRotatef(-Scene.Camera.Rotation.Z, 0.0,0.0,1.0);
   glTranslatef(-Scene.Camera.Position.X, -Scene.Camera.Position.Y, -Scene.Camera.Position.Z);
 
+  // SUN
   glLightfv(GL_LIGHT0, GL_POSITION, @Scene.SunPos);
 
   // MODELS
@@ -436,13 +497,15 @@ begin
   for m := Low(Scene.Models) to High(Scene.Models) do
   begin
     Model := Scene.Models[m];
-    RenderModel(Model);
+    if IsObjectVisible(Scene.Camera,Model.Position) then
+      RenderModel(Model);
     for c := Low(Model.Clones) to High(Model.Clones) do
     begin
       Model.Position := Model.Clones[c].Position;
       Model.Rotation := Model.Clones[c].Rotation;
       Model.Scale := Model.Clones[c].Scale;
-      RenderModel(Model);
+      if IsObjectVisible(Scene.Camera,Model.Position) then
+        RenderModel(Model);
     end
   end;
 end;
