@@ -4,14 +4,12 @@ interface
 
 uses
   Windows, OpenGL, SysUtils, Variants, Classes, Controls, Forms,
-  ExtCtrls,Messages, Math, DateUtils, MPlayer;
+  ExtCtrls, Messages, Math, DateUtils;
 
 type
   TColor = record
     R, G, B: GLfloat;
   end;
-
-  TMatrix4 = array[0..3, 0..3] of GLfloat;
 
   TVector3 = record
     X, Y, Z: GLfloat;
@@ -55,7 +53,8 @@ type
   end;
 
   TCamera = record
-    X, Y, Z: GLfloat;
+    Position: TVertex;
+    Rotation: TVertex;
     Direction:  GLfloat;
     Lens: GLfloat;
     Free: boolean;
@@ -104,9 +103,9 @@ type
     public
       procedure InitDemo();
       procedure KillDemo();
-      function GetCameraStats(): TCamera;
       function GetFrameTime(): Double;
       function GetPolygons(): Integer;
+      procedure SetDemoFullScreen();
    end;
 
   TWglSwapIntervalEXT = procedure(interval: GLInt); stdcall;
@@ -162,54 +161,8 @@ end;
 //    ---   ---   ---   ---   ---   ---   ---   ---   TIMER
 
 procedure TFormDemo.Timer1Timer(Sender: TObject);
-const
-  MovementReduction: Double = 0.01;
 begin
-  if Scene.Camera.Free then
-  begin
-  if MovementVector.X > 0 then
-  begin
-    MovementVector.X := MovementVector.X - MovementReduction;
-    if MovementVector.X < 0 then MovementVector.X := 0;
-  end;
-  if MovementVector.X < 0 then
-  begin
-    MovementVector.X := MovementVector.X + MovementReduction;
-    if MovementVector.X > 0 then MovementVector.X := 0;
-  end;
-  Scene.Camera.X := Scene.Camera.X + MovementVector.X;
-
-  if MovementVector.Y > 0 then
-  begin
-    MovementVector.Y := MovementVector.Y - MovementReduction;
-    if MovementVector.Y < 0 then MovementVector.Y  := 0;
-  end;
-  if MovementVector.Y < 0 then
-  begin
-    MovementVector.Y := MovementVector.Y + MovementReduction;
-    if MovementVector.Y > 0 then MovementVector.Y:= 0;
-  end;
-  Scene.Camera.Y := Scene.Camera.Y + MovementVector.Y;
-
-  if MovementVector.Z > 0 then
-  begin
-    MovementVector.Z := MovementVector.Z - MovementReduction;
-    if MovementVector.Z < 0 then MovementVector.Z  := 0;
-  end;
-  if MovementVector.Z < 0 then
-  begin
-    MovementVector.Z := MovementVector.Z + MovementReduction;
-    if MovementVector.Z > 0 then MovementVector.Z:= 0;
-  end;
-  Scene.Camera.Z := Scene.Camera.Z + MovementVector.Z;
-
-  end;
-
-
-  //    ---   ---   ---   ---   ---   ---   ---   ---   NEW FRAME
-
-
-  if DemoRunning then
+ if DemoRunning then
   begin
     DemoTime := DemoTime + FrameTime/1000;
     if DemoTime > DemoLength then
@@ -358,10 +311,15 @@ end;
       if Scene.Camera.Free = false then
       begin
         linear := Scene.Camera.Timeline[Next].Linear;
-        Scene.Camera.X := Lerp(Scene.Camera.Timeline[Prev].Params[_X],Scene.Camera.Timeline[Next].Params[_X],Pos,linear);
-        Scene.Camera.Y := Lerp(Scene.Camera.Timeline[Prev].Params[_Y],Scene.Camera.Timeline[Next].Params[_Y],Pos,linear);
-        Scene.Camera.Z := Lerp(Scene.Camera.Timeline[Prev].Params[_Z],Scene.Camera.Timeline[Next].Params[_Z],Pos,linear);
-        Scene.Camera.Direction := Lerp(Scene.Camera.Timeline[Prev].Params[_RY],Scene.Camera.Timeline[Next].Params[_RY],Pos,linear);
+        Scene.Camera.Position.X := Lerp(Scene.Camera.Timeline[Prev].Params[_X],Scene.Camera.Timeline[Next].Params[_X],Pos,linear);
+        Scene.Camera.Position.Y := Lerp(Scene.Camera.Timeline[Prev].Params[_Y],Scene.Camera.Timeline[Next].Params[_Y],Pos,linear);
+        Scene.Camera.Position.Z := Lerp(Scene.Camera.Timeline[Prev].Params[_Z],Scene.Camera.Timeline[Next].Params[_Z],Pos,linear);
+
+        Scene.Camera.Rotation.X := Lerp(Scene.Camera.Timeline[Prev].Params[_RX],Scene.Camera.Timeline[Next].Params[_RX],Pos,linear);
+        Scene.Camera.Rotation.Y := Lerp(Scene.Camera.Timeline[Prev].Params[_RY],Scene.Camera.Timeline[Next].Params[_RY],Pos,linear);
+        Scene.Camera.Rotation.Z := Lerp(Scene.Camera.Timeline[Prev].Params[_RZ],Scene.Camera.Timeline[Next].Params[_RZ],Pos,linear);
+
+        Scene.Camera.Lens := Lerp(Scene.Camera.Timeline[Prev].Params[_SCALE],Scene.Camera.Timeline[Next].Params[_SCALE],Pos,linear);
       end;
     end;
   end;
@@ -386,8 +344,11 @@ end;
       Scene.Models[m].Rotation.X := Lerp(Scene.Models[m].Timeline[Prev].Params[_RX],Scene.Models[m].Timeline[Next].Params[_RX],Pos,linear);
       Scene.Models[m].Rotation.Y := Lerp(Scene.Models[m].Timeline[Prev].Params[_RY],Scene.Models[m].Timeline[Next].Params[_RY],Pos,linear);
       Scene.Models[m].Rotation.Z := Lerp(Scene.Models[m].Timeline[Prev].Params[_RZ],Scene.Models[m].Timeline[Next].Params[_RZ],Pos,linear);
+
+      Scene.Models[m].Scale := Lerp(Scene.Models[m].Timeline[Prev].Params[_SCALE],Scene.Models[m].Timeline[Next].Params[_SCALE],Pos,linear);
+
     end;
-  end;
+  end;
   end;
 end;
 
@@ -400,29 +361,19 @@ var
   Normal: TVertex;
   Face: TFace;
   Model: TModel;
-  CameraTarget: TVector3;
-function CalculateLookAtTarget(Direction: GLfloat): TVector3;
-const
-  DegToRad = Pi / 180.0;
-var
-  RadAngle: GLfloat;
-begin
-  RadAngle := Direction * DegToRad;
-  Result.X := Sin(RadAngle);
-  Result.Y := 0;
-  Result.Z := Cos(RadAngle);
-end;
+
 procedure  RenderModel(Model: TModel);
 var
   f,v: Integer;
 begin
   glPushMatrix();
+
     glTranslatef(Model.Position.X, Model.Position.Y, Model.Position.Z);
-    glRotatef(Model.Rotation.X, 1.0,0.0,0.0);
-    glRotatef(180+Model.Rotation.Y, 0.0,1.0,0.0);
-    glRotatef(Model.Rotation.Z, 0.0,0.0,1.0);
     glScalef(Model.Scale,Model.Scale,Model.Scale);
-    
+    glRotatef(Model.Rotation.X, 1.0,0.0,0.0);
+    glRotatef(Model.Rotation.Y, 0.0,1.0,0.0);
+    glRotatef(-Model.Rotation.Z, 0.0,0.0,1.0);
+
     glShadeModel(GL_SMOOTH);
     if Model.Shading = SHADE_FLAT then
       glShadeModel(GL_FLAT);
@@ -453,25 +404,32 @@ begin
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
-  CameraTarget := CalculateLookAtTarget(Scene.Camera.Direction);
-  gluLookAt(Scene.Camera.X, Scene.Camera.Y, Scene.Camera.Z,
-            Scene.Camera.X+CameraTarget.X, Scene.Camera.Y+0.2, Scene.Camera.Z+CameraTarget.Z,
-            0, 1, 0);
+  gluPerspective(Scene.Camera.Lens,ClientWidth/ClientHeight, CameraNear, CameraFar);
 
+  // WORLD /SKYBOX
   glDisable(GL_LIGHTING);
   glDepthMask(GL_FALSE);
   glDisable(GL_FOG);
   RenderModel(Scene.Skybox);
   glDepthMask(GL_TRUE);
-  glEnable(GL_LIGHTING);
+
+  //glEnable(GL_LIGHTING);
 
   if Scene.Fog.Enabled then
     glEnable(GL_FOG);
 
-  glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
+  // CAMERA
+  glRotatef(90-Scene.Camera.Rotation.X, 1.0,0.0,0.0);
+  glRotatef(-Scene.Camera.Rotation.Y, 0.0,1.0,0.0);
+  glRotatef(-Scene.Camera.Rotation.Z, 0.0,0.0,1.0);
+  glTranslatef(-Scene.Camera.Position.X, -Scene.Camera.Position.Y, -Scene.Camera.Position.Z);
 
+  // MODELS
   PolyCount := 0;
+
+  // TERRAIN
   RenderModel(Scene.Terrain);
+
   for m := Low(Scene.Models) to High(Scene.Models) do
   begin
     Model := Scene.Models[m];
@@ -494,39 +452,9 @@ end;
 
 procedure TFormDemo.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-const
-  MaxSpeed: Double = 0.15;
 begin
   case Key of
-    Ord('W'): MovementVector.Z := -MaxSpeed;
-    Ord('S'): MovementVector.Z := MaxSpeed;
-    Ord('Q'): MovementVector.Y := -MaxSpeed;
-    Ord('E'): MovementVector.Y := MaxSpeed;
-    Ord('A'): MovementVector.X := -MaxSpeed;
-    Ord('D'): MovementVector.X := MaxSpeed;
-    Ord('F'): ToggleFreeCamera;
-    VK_F11:
-     begin
-    if WindowState = wsNormal then
-    begin
-      //SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) and not WS_CAPTION);
-      //WindowState := wsMaximized;
-      //SetBounds(0, 0, Screen.Width, Screen.Height);
-      BorderStyle := bsNone;
-      SetFullScreen(320,200);
-      glViewport(0, 20,320,200);
-    end
-    else
-    begin
-      //SetWindowLong(Handle, GWL_STYLE, OldWindowStyle);
-      //WindowState := wsNormal;
-      //Width := 640;
-      //Height := 400;
-      //CenterWindow;
-      BorderStyle := bsSizeable;
-      ShowWindow(Application.Handle, SW_RESTORE);
-    end;
-  end;
+    VK_ESCAPE: Application.Terminate;
   end;
 end;
 
@@ -652,11 +580,6 @@ begin
           if Fields[_PROP] = 'flat' then
             Scene.Models[LastModel].Shading := SHADE_FLAT;
         end;
-        if Fields[_ACTION] = 'Camera' then
-        begin
-           if Fields[_PROP] = 'lens' then
-            Scene.Camera.Lens := StrToFloat(Fields[_VAL1]);
-        end;
         if Fields[_ACTION] = 'fog' then
         begin
           if Fields[_PROP] = 'enable' then
@@ -675,7 +598,7 @@ begin
           Scene.Terrain := LoadModel(
             Fields[_NAME],
             StrToFloat(Fields[_X]), StrToFloat(Fields[_Y]), StrToFloat(Fields[_Z]),
-            StrToFloat(Fields[_RX]), 180 + StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
+            StrToFloat(Fields[_RX]), StrToFloat(Fields[_RY]), StrToFloat(Fields[_RZ]),
             StrToFloat(Fields[_SCALE]));
         end;
         if Fields[_ACTION] = 'sun' then
@@ -722,11 +645,10 @@ begin
 
         if (Fields[_ACTION] = 'pos') or (Fields[_ACTION] = 'pos_') then
         begin
-          for f := 0 to 5 do
+          for f := 0 to 6 do
           begin
             ScreenplayLine.Params[f] := StrToFloat(Fields[_X+f]);
           end;
-          ScreenplayLine.Params[4] := ScreenplayLine.Params[4];
 
           if Fields[_PROP] = 'Camera' then
           begin
@@ -805,13 +727,14 @@ begin
     glHint(GL_FOG_HINT, GL_DONT_CARE);
   end;
 
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT_MODEL_AMBIENT);
+  //glEnable(GL_LIGHTING);
+  //glEnable(GL_LIGHT_MODEL_AMBIENT);
 
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, @Scene.Ambient);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.Sun.Color);
-  glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
+  //glEnable(GL_LIGHT0);
+  //glLightfv(GL_LIGHT0, GL_AMBIENT, @Scene.Ambient);
+  //glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.Sun.Color);
+  //glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
+
   LastFrameTime := Now;
 
 end;
@@ -907,10 +830,6 @@ begin
   OldWindowStyle := GetWindowLong(Handle, GWL_STYLE);
 end;
 
-function TFormDemo.GetCameraStats(): TCamera;
-begin
-  Result := Scene.Camera;
-end;
 
 function TFormDemo.GetFrameTime(): Double;
 begin
@@ -922,4 +841,10 @@ begin
   Result := PolyCount;
 end;
 
+procedure TFormDemo.SetDemoFullScreen();
+begin
+  BorderStyle := bsNone;
+  SetFullScreen(320,200);
+  glViewport(0,0,320,200);
+end;
 end.

@@ -1,10 +1,10 @@
 object FormAbout: TFormAbout
-  Left = 236
-  Top = 215
+  Left = 275
+  Top = 163
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsNone
+  BorderStyle = bsSingle
   Caption = 'About Bad Looking Cube'
-  ClientHeight = 173
+  ClientHeight = 215
   ClientWidth = 312
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
@@ -483,9 +483,9 @@ object FormAbout: TFormAbout
   TextHeight = 13
   object ImageP1X: TImage
     Left = 0
-    Top = 0
+    Top = 21
     Width = 312
-    Height = 137
+    Height = 167
     Align = alClient
     Center = True
     Picture.Data = {
@@ -522,10 +522,10 @@ object FormAbout: TFormAbout
   end
   object Label1: TLabel
     Left = 0
-    Top = 137
+    Top = 0
     Width = 312
-    Height = 14
-    Align = alBottom
+    Height = 21
+    Align = alTop
     Alignment = taCenter
     Caption = 'Krzysztof Krystian Jankowski'
     Font.Charset = DEFAULT_CHARSET
@@ -538,12 +538,12 @@ object FormAbout: TFormAbout
   end
   object Label2: TLabel
     Left = 0
-    Top = 151
+    Top = 204
     Width = 312
     Height = 11
     Align = alBottom
     Alignment = taCenter
-    Caption = 'VISIT SCENE.P1X.IN'
+    Caption = 'VISIT HTTP://SCENE.P1X.IN'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clYellow
     Font.Height = -9
@@ -553,12 +553,12 @@ object FormAbout: TFormAbout
   end
   object Label4: TLabel
     Left = 0
-    Top = 162
+    Top = 188
     Width = 312
-    Height = 11
+    Height = 16
     Align = alBottom
     Alignment = taCenter
-    Caption = 'VERSION FROM 12.2023'
+    Caption = 'Created November 2023'
     Color = clNavy
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clMedGray
@@ -569,11 +569,11 @@ object FormAbout: TFormAbout
     ParentFont = False
   end
   object ButtonOK: TButton
-    Left = 272
-    Top = 144
-    Width = 33
-    Height = 25
-    Caption = 'OK'
+    Left = 120
+    Top = 152
+    Width = 73
+    Height = 17
+    Caption = 'CLOSE'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed
     Font.Height = -11

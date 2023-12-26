@@ -1,10 +1,10 @@
 object FormCC: TFormCC
   Left = 17
-  Top = 464
+  Top = 445
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Command & Control - Bad Looking Cube'
-  ClientHeight = 76
+  ClientHeight = 68
   ClientWidth = 760
   Color = clGray
   Font.Charset = DEFAULT_CHARSET
@@ -477,16 +477,18 @@ object FormCC: TFormCC
     000000000000000000000000000000000000000000000000000000000000FFFF
     0000F01F0000F00F0000E0070000E0070000C0030000C0030000800300008001
     000080010000C0010000C0010000E0010000F01F0000F9FF0000FFFF0000}
+  Menu = MainMenu1
   OldCreateOrder = False
   Visible = True
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 15
   object GroupPlayback: TGroupBox
-    Left = 224
-    Top = 8
-    Width = 225
-    Height = 41
+    Left = 145
+    Top = 0
+    Width = 242
+    Height = 45
+    Align = alLeft
     Caption = 'PLAYBACK'
     Color = clBlack
     Ctl3D = False
@@ -501,7 +503,7 @@ object FormCC: TFormCC
     TabOrder = 0
     Visible = False
     object ButtonBegin: TButton
-      Left = 0
+      Left = 8
       Top = 16
       Width = 49
       Height = 25
@@ -516,7 +518,7 @@ object FormCC: TFormCC
       OnClick = ButtonBeginClick
     end
     object ButtonPause: TButton
-      Left = 80
+      Left = 88
       Top = 16
       Width = 65
       Height = 25
@@ -531,7 +533,7 @@ object FormCC: TFormCC
       OnClick = ButtonPauseClick
     end
     object ButtonSeekForward: TButton
-      Left = 144
+      Left = 152
       Top = 16
       Width = 33
       Height = 25
@@ -546,7 +548,7 @@ object FormCC: TFormCC
       OnClick = ButtonSeekForwardClick
     end
     object ButtonEnd: TButton
-      Left = 176
+      Left = 184
       Top = 16
       Width = 49
       Height = 25
@@ -561,7 +563,7 @@ object FormCC: TFormCC
       OnClick = ButtonEndClick
     end
     object ButtonSeekBack: TButton
-      Left = 48
+      Left = 56
       Top = 16
       Width = 33
       Height = 25
@@ -577,10 +579,11 @@ object FormCC: TFormCC
     end
   end
   object GroupTimer: TGroupBox
-    Left = 456
-    Top = 8
-    Width = 153
+    Left = 387
+    Top = 0
+    Width = 285
     Height = 45
+    Align = alClient
     Caption = 'TIMER - TIMESTAMP'
     Color = clBlack
     Ctl3D = False
@@ -596,7 +599,7 @@ object FormCC: TFormCC
     object LabelTimeStamp: TLabel
       Left = 1
       Top = 14
-      Width = 151
+      Width = 283
       Height = 30
       Align = alClient
       Alignment = taCenter
@@ -612,10 +615,11 @@ object FormCC: TFormCC
     end
   end
   object GroupDemo: TGroupBox
-    Left = 8
-    Top = 8
-    Width = 209
-    Height = 41
+    Left = 0
+    Top = 0
+    Width = 145
+    Height = 45
+    Align = alLeft
     Caption = 'DEMO'
     Color = clBlack
     Ctl3D = False
@@ -629,7 +633,7 @@ object FormCC: TFormCC
     ParentFont = False
     TabOrder = 2
     object ButtonRunDemo: TButton
-      Left = 0
+      Left = 8
       Top = 16
       Width = 65
       Height = 25
@@ -644,11 +648,12 @@ object FormCC: TFormCC
       OnClick = ButtonRunDemoClick
     end
     object ButtonCloseDermo: TButton
-      Left = 64
+      Left = 72
       Top = 16
       Width = 65
       Height = 25
       Caption = 'CLOSE'
+      Enabled = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -658,28 +663,27 @@ object FormCC: TFormCC
       TabOrder = 1
       OnClick = ButtonCloseDermoClick
     end
-    object ButtonShowDirector: TButton
-      Left = 128
-      Top = 16
-      Width = 81
-      Height = 25
-      Caption = 'DIRECTOR'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 2
-      OnClick = ButtonShowDirectorClick
-    end
   end
-  object GroupApp: TGroupBox
-    Left = 624
-    Top = 8
-    Width = 129
-    Height = 41
-    Caption = 'BAD LOOKING CUBE - VERSION 0.1'
+  object TrackBarDemoTime: TTrackBar
+    Left = 0
+    Top = 45
+    Width = 760
+    Height = 23
+    Cursor = crUpArrow
+    Align = alBottom
+    Ctl3D = True
+    Max = 100
+    ParentCtl3D = False
+    TabOrder = 3
+    OnChange = TrackBarDemoTimeChange
+  end
+  object GroupStats: TGroupBox
+    Left = 672
+    Top = 0
+    Width = 88
+    Height = 45
+    Align = alRight
+    Caption = 'STATS'
     Color = clBlack
     Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
@@ -690,54 +694,67 @@ object FormCC: TFormCC
     ParentColor = False
     ParentCtl3D = False
     ParentFont = False
-    TabOrder = 3
-    object ButtonTerminate: TButton
-      Left = 64
-      Top = 16
-      Width = 65
-      Height = 25
-      Caption = 'TERMINATE'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 0
-      OnClick = ButtonTerminateClick
-    end
-    object ButtonAbout: TButton
-      Left = 0
-      Top = 16
-      Width = 65
-      Height = 25
-      Caption = 'ABOUT'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clRed
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 1
-      OnClick = ButtonAboutClick
-    end
-  end
-  object TrackBarDemoTime: TTrackBar
-    Left = 0
-    Top = 53
-    Width = 760
-    Height = 23
-    Cursor = crUpArrow
-    Align = alBottom
-    Ctl3D = True
-    Max = 100
-    ParentCtl3D = False
     TabOrder = 4
-    OnChange = TrackBarDemoTimeChange
+    Visible = False
+    object LabelPolys: TLabel
+      Left = 1
+      Top = 14
+      Width = 86
+      Height = 13
+      Align = alTop
+      Caption = 'Polygons: 9999'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentFont = False
+    end
+    object LabelFrameTime: TLabel
+      Left = 1
+      Top = 27
+      Width = 86
+      Height = 13
+      Align = alTop
+      Caption = 'FrameTime: 15ms'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentFont = False
+    end
   end
   object TimerDemo: TTimer
     Enabled = False
     Interval = 30
     OnTimer = TimerDemoTimer
+    Left = 56
+  end
+  object MainMenu1: TMainMenu
+    Left = 379
+    Top = 8
+    object DEMO1: TMenuItem
+      Caption = 'DEMO'
+      object FULLSCREEN1: TMenuItem
+        Caption = 'FULLSCREEN'
+        OnClick = FULLSCREEN1Click
+      end
+      object APPLICATION1: TMenuItem
+        Caption = 'QUIT'
+        OnClick = APPLICATION1Click
+      end
+    end
+    object MS1: TMenuItem
+      Caption = 'ABOUT'
+      object BadLookingCube1: TMenuItem
+        Caption = 'Bad Looking Cube'
+        OnClick = BadLookingCube1Click
+      end
+      object DEMO011: TMenuItem
+        Caption = 'DEMO-01'
+        OnClick = DEMO011Click
+      end
+    end
   end
 end

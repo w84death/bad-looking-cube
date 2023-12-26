@@ -20,7 +20,7 @@ import re
 bl_info = {
     "name": "Bad Looking Cube B3D Collection Exporter",
     "author": "Krzysztof Krystian Jankowski",
-    "version": (2, 3),
+    "version": (2, 5),
     "blender": (2, 80, 0),
     "location": "View3D > Sidebar > Bad Looking Cube Tab",
     "description": "Exports mesh data to a CSV file",
@@ -131,8 +131,9 @@ class ExportMeshData(bpy.types.Operator):
         return re.sub(r"\.\d{3}$", "", name)
     
     def radians360(self, radian):
-        degree = math.degrees(radian)  # Convert radian to degree
-        return round(degree % 360,2)  # Normalize to 0-360
+        
+        degree = math.degrees(radian)
+        return round(degree,2)
     
     def execute(self, context):
         mesh_exporter = context.scene.mesh_exporter
@@ -177,7 +178,8 @@ class ExportMeshData(bpy.types.Operator):
                 writer.writerow(['-1', 'sun', '',-2,1,1,round(sun_color.r,2),round(sun_color.g,2),round(sun_color.b,2),0])
                 writer.writerow(['-1', 'ambient', '',0,0,0,round(ambient_color.r,2),round(ambient_color.g,2),round(ambient_color.b,2),0])
 
-                collection = bpy.context.collection  # for example, the current context collection
+                writer.writerow(['-1', 'Camera', 'lens', 25,0,0,0,0,0,1])
+
                 sorted_objects = sorted(collection.all_objects, key=lambda obj: obj.name)
 
                 last_object_name = ''
@@ -189,13 +191,23 @@ class ExportMeshData(bpy.types.Operator):
                         rot = obj.rotation_euler
                         scale = obj.scale.x                        
                         cleaned_name = self.clean_name(obj.name)
-                        mode = 'clone'
+                        mode_name = 'clone'
                         if last_object_name != cleaned_name:
                             last_object_name = cleaned_name
-                            mode = 'load'
+                            mode_name = 'load'
                         
-                        writer.writerow(['-1', mode, cleaned_name, round(loc.x,2), round(loc.z,2), round(loc.y,2), self.radians360(rot.x), self.radians360(rot.z), self.radians360(rot.y), round(scale,2)])
-                
+                        writer.writerow([
+                            -1, 
+                            mode_name, 
+                            cleaned_name, 
+                            round(loc.x,4), 
+                            round(loc.z,4), 
+                            round(-loc.y,4),  
+                            round(math.degrees(rot.x),4), 
+                            round(math.degrees(rot.z),4), 
+                            round(math.degrees(rot.y),4), 
+                            round(scale,4)])
+                                
                 for obj in collection.all_objects: 
                     if obj.animation_data and obj.animation_data.action:
                         # Extract keyframes for this object
@@ -218,14 +230,23 @@ class ExportMeshData(bpy.types.Operator):
 
                             # Get object's location and rotation in Euler angles
                             loc = obj.location
-                            rot = obj.rotation_euler  # Assuming the object uses Euler rotation
-                            #rot_deg = [math.degrees(angle) % 360 for angle in rot]
+                            rot = obj.rotation_euler
                             scale = obj.scale.x
                             cleaned_name = self.clean_name(obj.name)
                             mode = interpolation_modes[frame]
                             mode_name = 'pos' if mode == 'BEZIER' else 'pos_'
                             
-                            writer.writerow([round(time,1), mode_name, cleaned_name, round(loc.x,2), round(loc.z,2), round(loc.y,2), self.radians360(rot.x), self.radians360(rot.z), self.radians360(rot.y), round(scale,2)])
+                            writer.writerow([
+                                round(time,1), 
+                                mode_name, 
+                                cleaned_name, 
+                                round(loc.x,4), 
+                                round(loc.z,4), 
+                                round(-loc.y,4),  
+                                round(math.degrees(rot.x),4), 
+                                round(math.degrees(rot.z),4), 
+                                round(math.degrees(rot.y),4),
+                                round(scale,4)])
 
                 writer.writerow([demo_end_time, 'end', 'demo', 0,0,0,0,0,0,0])
         
