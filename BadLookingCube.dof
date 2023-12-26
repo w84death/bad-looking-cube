@@ -106,7 +106,7 @@ Launcher=
 UseLauncher=0
 DebugCWD=
 [Version Info]
-IncludeVerInfo=0
+IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=0
@@ -120,14 +120,14 @@ DLL=0
 Locale=1033
 CodePage=1252
 [Version Info Keys]
-CompanyName=
-FileDescription=
+CompanyName=Krzysztof Krystian Jankowski ^ P1X
+FileDescription=Bad  Looking Cube Demotool
 FileVersion=1.0.0.0
-InternalName=
-LegalCopyright=
+InternalName=DEMO-01
+LegalCopyright=P1X
 LegalTrademarks=
 OriginalFilename=
-ProductName=
+ProductName=DEMO-01
 ProductVersion=1.0.0.0
 Comments=
 [Excluded Packages]

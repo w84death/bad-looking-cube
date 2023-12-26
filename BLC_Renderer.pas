@@ -464,8 +464,15 @@ begin
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
+
   glLoadIdentity();
   gluPerspective(Scene.Camera.Lens,ClientWidth/ClientHeight, CameraNear, CameraFar);
+
+    // CAMERA
+  glRotatef(-Scene.Camera.Rotation.X, 1.0,0.0,0.0);
+  glRotatef(-Scene.Camera.Rotation.Y, 0.0,1.0,0.0);
+  glRotatef(-Scene.Camera.Rotation.Z, 0.0,0.0,1.0);
+  glTranslatef(-Scene.Camera.Position.X, -Scene.Camera.Position.Y, -Scene.Camera.Position.Z);
 
   // WORLD /SKYBOX
   glDisable(GL_LIGHTING);
@@ -479,11 +486,6 @@ begin
   if Scene.Fog.Enabled then
     glEnable(GL_FOG);
 
-  // CAMERA
-  glRotatef(90-Scene.Camera.Rotation.X, 1.0,0.0,0.0);
-  glRotatef(-Scene.Camera.Rotation.Y, 0.0,1.0,0.0);
-  glRotatef(-Scene.Camera.Rotation.Z, 0.0,0.0,1.0);
-  glTranslatef(-Scene.Camera.Position.X, -Scene.Camera.Position.Y, -Scene.Camera.Position.Z);
 
   // SUN
   glLightfv(GL_LIGHT0, GL_POSITION, @Scene.SunPos);
@@ -497,15 +499,18 @@ begin
   for m := Low(Scene.Models) to High(Scene.Models) do
   begin
     Model := Scene.Models[m];
-    if IsObjectVisible(Scene.Camera,Model.Position) then
-      RenderModel(Model);
+
+    //if IsObjectVisible(Scene.Camera,Model.Position) then
+    RenderModel(Model);
+
     for c := Low(Model.Clones) to High(Model.Clones) do
     begin
       Model.Position := Model.Clones[c].Position;
       Model.Rotation := Model.Clones[c].Rotation;
       Model.Scale := Model.Clones[c].Scale;
-      if IsObjectVisible(Scene.Camera,Model.Position) then
-        RenderModel(Model);
+
+      //if IsObjectVisible(Scene.Camera,Model.Position) then
+      RenderModel(Model);
     end
   end;
 end;
@@ -721,6 +726,8 @@ begin
           begin
             if Fields[_ACTION] = 'pos_' then
               ScreenplayLine.Linear := true;
+            // fix for blender camera looking down
+            ScreenplayLine.Params[3] := ScreenplayLine.Params[3] - 90;
             SetLength(Scene.Camera.Timeline, Length(Scene.Camera.Timeline) + 1);
             Scene.Camera.Timeline[High(Scene.Camera.Timeline)] := ScreenplayLine;
           end

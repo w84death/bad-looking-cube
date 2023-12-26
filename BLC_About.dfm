@@ -545,9 +545,9 @@ object FormAbout: TFormAbout
     Caption = 'CLOSE'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed
-    Font.Height = -11
-    Font.Name = 'Arial Narrow'
-    Font.Style = [fsBold]
+    Font.Height = -12
+    Font.Name = 'Terminal'
+    Font.Style = []
     ParentFont = False
     TabOrder = 0
     OnClick = ButtonOKClick

@@ -1,5 +1,8 @@
 SM_Skybox0 RCDATA Models/skybox.obj
 SM_Terrain0 RCDATA Models/terrain0.obj
+SM_River RCDATA Models/river.obj
+SM_Bridge0 RCDATA Models/bridge0.obj
+P1X RCDATA Models/p1x.obj
 SM_Tree0 RCDATA Models/tree0.obj
 SM_Tree1 RCDATA Models/tree1.obj
 SM_Tree2 RCDATA Models/tree2.obj

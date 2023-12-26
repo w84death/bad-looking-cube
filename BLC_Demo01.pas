@@ -22,9 +22,7 @@ type
     MainMenu1: TMainMenu;
     DEMO1: TMenuItem;
     APPLICATION1: TMenuItem;
-    MS1: TMenuItem;
     FULLSCREEN1: TMenuItem;
-    BadLookingCube1: TMenuItem;
     GroupStats: TGroupBox;
     LabelPolys: TLabel;
     LabelFrameTime: TLabel;
@@ -35,6 +33,12 @@ type
     Center1: TMenuItem;
     Label1: TLabel;
     Label2: TLabel;
+    GroupIntro: TGroupBox;
+    ButtonOpenDemo: TButton;
+    ImageP1X: TImage;
+    Credits: TRichEdit;
+    Version: TLabel;
+    TimerCredits: TTimer;
     procedure RefreshTimer();
     procedure TimerDemoTimer(Sender: TObject);
     procedure ButtonPauseClick(Sender: TObject);
@@ -53,6 +57,7 @@ type
     procedure SET640x4801Click(Sender: TObject);
     procedure MenuStartDemoClick(Sender: TObject);
     procedure Center1Click(Sender: TObject);
+    procedure ButtonOpenDemoClick(Sender: TObject);
   public
     procedure OpenDemoWindow();
     procedure CloseDemoWindow();
@@ -84,6 +89,9 @@ begin
   DemoTime := 0.0;
   TimerDemo.Enabled := true;
   BLC_Renderer.DemoRunning := true;
+  GroupIntro.Visible := false;
+  GroupTimer.Visible := true;
+  TrackBarDemoTime.Visible := true;
   RefreshTimer;
 end;
 
@@ -98,7 +106,11 @@ begin
   DemoTime := 0.0;
   TimerDemo.Enabled := false;
   BLC_Renderer.DemoRunning := false;
+  GroupIntro.Visible := true;
+  GroupTimer.Visible := false;
+  TrackBarDemoTime.Visible := false;
   RefreshTimer;
+
 end;
 
 function TFormCC.ToggleFreeCamera(): Boolean;
@@ -259,6 +271,11 @@ end;
 procedure TFormCC.Center1Click(Sender: TObject);
 begin
   FormDemo.CenterWindow;
+end;
+
+procedure TFormCC.ButtonOpenDemoClick(Sender: TObject);
+begin
+  OpenDemoWindow;
 end;
 
 end.

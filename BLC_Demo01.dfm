@@ -1,16 +1,16 @@
 object FormCC: TFormCC
-  Left = 215
-  Top = 435
+  Left = 211
+  Top = 450
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'DEMO-01 _.:|[ Command & Control of Bad Looking Cube ]|:._'
-  ClientHeight = 74
+  Caption = 'DEMO-01 ~ EVERY POLYGON COUNTS!'
+  ClientHeight = 75
   ClientWidth = 504
   Color = clGray
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Arial Narrow'
+  Font.Height = -8
+  Font.Name = 'Terminal'
   Font.Style = []
   Icon.Data = {
     0000010009002020100001000400E8020000960000001818100001000400E801
@@ -482,12 +482,12 @@ object FormCC: TFormCC
   Visible = True
   OnCreate = FormCreate
   PixelsPerInch = 96
-  TextHeight = 15
+  TextHeight = 8
   object GroupPlayback: TGroupBox
     Left = 0
     Top = 0
     Width = 242
-    Height = 51
+    Height = 52
     Align = alLeft
     Caption = 'PLAYBACK'
     Color = clBackground
@@ -510,11 +510,11 @@ object FormCC: TFormCC
       Caption = 'BEGIN'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
       ParentFont = False
-      TabOrder = 0
+      TabOrder = 1
       OnClick = ButtonBeginClick
     end
     object ButtonPause: TButton
@@ -525,11 +525,11 @@ object FormCC: TFormCC
       Caption = 'PLAY'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
+      Font.Height = -12
+      Font.Name = 'Terminal'
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 0
       OnClick = ButtonPauseClick
     end
     object ButtonSeekForward: TButton
@@ -540,9 +540,9 @@ object FormCC: TFormCC
       Caption = '>>'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
       ParentFont = False
       TabOrder = 3
       OnClick = ButtonSeekForwardClick
@@ -555,9 +555,9 @@ object FormCC: TFormCC
       Caption = 'END'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
       ParentFont = False
       TabOrder = 4
       OnClick = ButtonEndClick
@@ -570,11 +570,11 @@ object FormCC: TFormCC
       Caption = '<<'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 2
       OnClick = ButtonSeekBackClick
     end
   end
@@ -582,7 +582,7 @@ object FormCC: TFormCC
     Left = 242
     Top = 0
     Width = 150
-    Height = 51
+    Height = 52
     Align = alClient
     Caption = 'TIMESTAMP'
     Color = clNavy
@@ -596,11 +596,12 @@ object FormCC: TFormCC
     ParentCtl3D = False
     ParentFont = False
     TabOrder = 1
+    Visible = False
     object LabelTimeStamp: TLabel
       Left = 1
       Top = 9
       Width = 148
-      Height = 41
+      Height = 42
       Align = alClient
       Alignment = taCenter
       Caption = '0.00'
@@ -617,7 +618,7 @@ object FormCC: TFormCC
   end
   object TrackBarDemoTime: TTrackBar
     Left = 0
-    Top = 51
+    Top = 52
     Width = 504
     Height = 23
     Cursor = crUpArrow
@@ -627,13 +628,14 @@ object FormCC: TFormCC
     Max = 100
     ParentCtl3D = False
     TabOrder = 2
+    Visible = False
     OnChange = TrackBarDemoTimeChange
   end
   object GroupStats: TGroupBox
     Left = 392
     Top = 0
     Width = 112
-    Height = 51
+    Height = 52
     Align = alRight
     Caption = 'STATS'
     Color = clGreen
@@ -709,6 +711,118 @@ object FormCC: TFormCC
       ParentFont = False
     end
   end
+  object GroupIntro: TGroupBox
+    Left = 242
+    Top = 0
+    Width = 150
+    Height = 52
+    Align = alClient
+    Caption = 'SYSTEM READY!'
+    Color = clHotLight
+    Ctl3D = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clYellow
+    Font.Height = -8
+    Font.Name = 'Terminal'
+    Font.Style = []
+    ParentColor = False
+    ParentCtl3D = False
+    ParentFont = False
+    TabOrder = 4
+    object ImageP1X: TImage
+      Left = -171
+      Top = 9
+      Width = 127
+      Height = 30
+      Align = alRight
+      Center = True
+      Picture.Data = {
+        07544269746D61705E010000424D5E010000000000003E000000280000002400
+        000024000000010001000000000020010000204E0000204E0000020000000000
+        0000FFFFFF000000000018006181800000001800618180000000180061818000
+        0000180061818000000018006181800000001800618180000000180061818000
+        0000180061818000000018006181800000001800618180000000180061818000
+        0000180061818000000018006181800000001800618180000000180061818000
+        000018006181800000001FF86181800000001FF8618180000000181860660000
+        0000181860660000000018186018000000001818601800000000181860660000
+        0000181860660000000018186181800000001818618180000000181861818000
+        0000181861818000000018186181800000001818618180000000181861818000
+        000018186181800000001819E181800000001819E181800000001FF861818000
+        00001FF8618180000000}
+      Transparent = True
+    end
+    object Version: TLabel
+      Left = 1
+      Top = 39
+      Width = 148
+      Height = 12
+      Align = alBottom
+      Alignment = taCenter
+      Caption = 'VERSION 26-12-2023'
+      Color = clNavy
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = [fsItalic]
+      ParentColor = False
+      ParentFont = False
+    end
+    object ButtonOpenDemo: TButton
+      Left = 8
+      Top = 40
+      Width = 137
+      Height = 25
+      Caption = 'PLAY DEMO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnClick = ButtonOpenDemoClick
+    end
+    object Credits: TRichEdit
+      Left = -44
+      Top = 9
+      Width = 193
+      Height = 30
+      Cursor = crCross
+      Align = alRight
+      Alignment = taCenter
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
+      Color = clBlue
+      Ctl3D = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -8
+      Font.Name = 'Terminal'
+      Font.Style = []
+      Lines.Strings = (
+        ''
+        '*** Bad Looking Cube ***'
+        '------------------------'
+        ''
+        'Engine/Demotool for creating '
+        'demos for Windows 2000.'
+        ''
+        'Created November 2023 by '
+        'Krzysztof Krystian Jankowski'
+        ''
+        'Visit [https://scene.p1x.in] '
+        'for more information and '
+        'latest releases.')
+      ParentCtl3D = False
+      ParentFont = False
+      PlainText = True
+      ReadOnly = True
+      ScrollBars = ssVertical
+      TabOrder = 1
+    end
+  end
   object TimerDemo: TTimer
     Enabled = False
     Interval = 30
@@ -720,7 +834,7 @@ object FormCC: TFormCC
     Left = 83
     Top = 48
     object DEMO1: TMenuItem
-      Caption = 'DEMO-01'
+      Caption = 'Command'
       object MenuStartDemo: TMenuItem
         Caption = 'Start demo'
         OnClick = MenuStartDemoClick
@@ -734,7 +848,7 @@ object FormCC: TFormCC
       Caption = 'Window'
       Visible = False
       object Center1: TMenuItem
-        Caption = 'Center'
+        Caption = 'Center on desktop'
         OnClick = Center1Click
       end
       object SET320x2001: TMenuItem
@@ -742,7 +856,7 @@ object FormCC: TFormCC
         OnClick = SET320x2001Click
       end
       object SET640x4801: TMenuItem
-        Caption = 'Set to 640x480'
+        Caption = 'Set to 640x400'
         OnClick = SET640x4801Click
       end
       object FULLSCREEN1: TMenuItem
@@ -750,12 +864,10 @@ object FormCC: TFormCC
         OnClick = FULLSCREEN1Click
       end
     end
-    object MS1: TMenuItem
-      Caption = 'About'
-      object BadLookingCube1: TMenuItem
-        Caption = 'Bad Looking Cube'
-        OnClick = BadLookingCube1Click
-      end
-    end
+  end
+  object TimerCredits: TTimer
+    Interval = 100
+    Left = 242
+    Top = 8
   end
 end
