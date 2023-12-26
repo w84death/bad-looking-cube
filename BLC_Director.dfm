@@ -1,11 +1,10 @@
-object FormAbout: TFormAbout
-  Left = 195
-  Top = 171
-  BorderIcons = [biSystemMenu]
-  BorderStyle = bsSingle
-  Caption = 'About Bad Looking Cube'
-  ClientHeight = 215
-  ClientWidth = 311
+object FormDirector: TFormDirector
+  Left = 27
+  Top = 1
+  Width = 740
+  Height = 480
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Director - Bad Looking Cube'
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -481,113 +480,350 @@ object FormAbout: TFormAbout
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object ImageP1X: TImage
-    Left = 184
-    Top = 0
-    Width = 127
-    Height = 203
-    Align = alRight
-    Center = True
-    Picture.Data = {
-      07544269746D61709E030000424D9E030000000000003E000000280000004800
-      000048000000010001000000000060030000204E0000204E0000020000000000
-      000000000000FFFFFF0003C000003C03C003C000000003C000003C03C003C000
-      000003C000003C03C003C000000003C000003C03C003C000000003C000003C03
-      C003C000000003C000003C03C003C000000003C000003C03C003C000000003C0
-      00003C03C003C000000003C000003C03C003C000000003C000003C03C003C000
-      000003C000003C03C003C000000003C000003C03C003C000000003C000003C03
-      C003C000000003C000003C03C003C000000003C000003C03C003C000000003C0
-      00003C03C003C000000003C000003C03C003C000000003C000003C03C003C000
-      000003C000003C03C003C000000003C000003C03C003C000000003C000003C03
-      C003C000000003C000003C03C003C000000003C000003C03C003C000000003C0
-      00003C03C003C000000003C000003C03C003C000000003C000003C03C003C000
-      000003C000003C03C003C000000003C000003C03C003C000000003C000003C03
-      C003C000000003C000003C03C003C000000003C000003C03C003C000000003C0
-      00003C03C003C000000003FFFFC03C03C003C000000003FFFFC03C03C003C000
-      000003FFFFC03C03C003C000000003FFFFC03C03C003C000000003C003C03C00
-      3C3C0000000003C003C03C003C3C0000000003C003C03C003C3C0000000003C0
-      03C03C003C3C0000000003C003C03C0003C00000000003C003C03C0003C00000
-      000003C003C03C0003C00000000003C003C03C0003C00000000003C003C03C00
-      3C3C0000000003C003C03C003C3C0000000003C003C03C003C3C0000000003C0
-      03C03C003C3C0000000003C003C03C03C003C000000003C003C03C03C003C000
-      000003C003C03C03C003C000000003C003C03C03C003C000000003C003C03C03
-      C003C000000003C003C03C03C003C000000003C003C03C03C003C000000003C0
-      03C03C03C003C000000003C003C03C03C003C000000003C003C03C03C003C000
-      000003C003C03C03C003C000000003C003C03C03C003C000000003C003C03C03
-      C003C000000003C003C03C03C003C000000003C003C03C03C003C000000003C0
-      03C03C03C003C000000003C003C3FC03C003C000000003C003C3FC03C003C000
-      000003C003C3FC03C003C000000003C003C3FC03C003C000000003FFFFC03C03
-      C003C000000003FFFFC03C03C003C000000003FFFFC03C03C003C000000003FF
-      FFC03C03C003C0000000}
-  end
-  object Label4: TLabel
+  object DBGrid1: TDBGrid
     Left = 0
-    Top = 203
-    Width = 311
-    Height = 12
-    Align = alBottom
-    Alignment = taCenter
-    Caption = 'VERSION 26-12-2023'
-    Color = clNavy
+    Top = 113
+    Width = 732
+    Height = 340
+    Align = alClient
+    BorderStyle = bsNone
+    Color = clMoneyGreen
+    DataSource = DataSource1
+    FixedColor = clPurple
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clMedGray
-    Font.Height = -12
-    Font.Name = 'Terminal'
-    Font.Style = [fsBold, fsItalic]
-    ParentColor = False
-    ParentFont = False
-  end
-  object ButtonOK: TButton
-    Left = 216
-    Top = 168
-    Width = 65
-    Height = 17
-    Caption = 'CLOSE'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clRed
+    Font.Color = clBlack
     Font.Height = -11
     Font.Name = 'Arial Narrow'
     Font.Style = [fsBold]
+    Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
     ParentFont = False
     TabOrder = 0
-    OnClick = ButtonOKClick
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clLime
+    TitleFont.Height = -11
+    TitleFont.Name = 'Arial Narrow'
+    TitleFont.Style = [fsBold]
+    Columns = <
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'timestamp'
+        Title.Alignment = taCenter
+        Title.Caption = 'TIMESTAMP'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clLime
+        Title.Font.Height = -8
+        Title.Font.Name = 'Arial Narrow'
+        Title.Font.Style = []
+        Width = 40
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'action'
+        Title.Alignment = taCenter
+        Title.Caption = 'ACTION'
+        Width = 50
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'prop'
+        Title.Alignment = taCenter
+        Title.Caption = 'PROPERTIY'
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'x'
+        Title.Alignment = taCenter
+        Title.Caption = 'X'
+        Width = 76
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'y'
+        Title.Alignment = taCenter
+        Title.Caption = 'Y'
+        Width = 75
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'z'
+        Title.Alignment = taCenter
+        Title.Caption = 'Z'
+        Width = 72
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'rx'
+        Title.Alignment = taCenter
+        Title.Caption = 'ROT X'
+        Width = 74
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'ry'
+        Title.Alignment = taCenter
+        Title.Caption = 'ROT Y'
+        Width = 71
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'rz'
+        Title.Alignment = taCenter
+        Title.Caption = 'ROT Z'
+        Width = 68
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'scale'
+        Title.Alignment = taCenter
+        Title.Caption = 'SCALE'
+        Visible = True
+      end>
   end
-  object RichAbout: TRichEdit
+  object PanelTools: TPanel
+    Left = 0
+    Top = 41
+    Width = 732
+    Height = 41
+    Align = alTop
+    Color = clBlack
+    TabOrder = 1
+    object GroupB: TGroupBox
+      Left = 185
+      Top = 1
+      Width = 546
+      Height = 39
+      Align = alClient
+      Caption = 'OTHER'
+      Color = clBackground
+      Ctl3D = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 1
+    end
+    object GroupA: TGroupBox
+      Left = 1
+      Top = 1
+      Width = 184
+      Height = 39
+      Align = alLeft
+      Caption = 'SPREADSHEET'
+      Color = clSkyBlue
+      Ctl3D = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clYellow
+      Font.Height = -8
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold, fsItalic]
+      ParentColor = False
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 0
+      object DBNavigator1: TDBNavigator
+        Left = 92
+        Top = 12
+        Width = 88
+        Height = 25
+        DataSource = DataSource1
+        VisibleButtons = [nbInsert, nbDelete]
+        TabOrder = 0
+      end
+      object ButtonSave: TButton
+        Left = 2
+        Top = 12
+        Width = 89
+        Height = 25
+        Caption = 'Save Changes'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -13
+        Font.Name = 'Arial Narrow'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        OnClick = ButtonSaveClick
+      end
+    end
+  end
+  object PanelMain: TPanel
     Left = 0
     Top = 0
-    Width = 185
-    Height = 203
-    Cursor = crCross
-    Align = alLeft
-    Alignment = taCenter
-    BevelInner = bvNone
-    BevelOuter = bvNone
-    BorderStyle = bsNone
-    Color = clBlue
-    Ctl3D = True
+    Width = 732
+    Height = 41
+    Align = alTop
+    Caption = 'Director Panel'
+    Color = clFuchsia
+    TabOrder = 2
+    object ButtonRunDemo: TButton
+      Left = 8
+      Top = 8
+      Width = 121
+      Height = 25
+      Caption = 'RESTART DEMO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      OnClick = ButtonRunDemoClick
+    end
+    object ButtonClose: TButton
+      Left = 656
+      Top = 8
+      Width = 65
+      Height = 25
+      Caption = 'CLOSE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      OnClick = ButtonCloseClick
+    end
+  end
+  object GroupStats: TGroupBox
+    Left = 0
+    Top = 82
+    Width = 732
+    Height = 31
+    Align = alTop
+    Caption = 'STATS'
+    Color = clBlack
+    Ctl3D = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clYellow
     Font.Height = -8
-    Font.Name = 'Terminal'
-    Font.Style = []
-    Lines.Strings = (
-      ''
-      '*** Bad Looking Cube ***'
-      '------------------------'
-      ''
-      'Engine/Demotool for creating '
-      'demos for Windows 2000 and up.'
-      ''
-      'Created November 2023 by '
-      'Krzysztof Krystian Jankowski'
-      ''
-      'Visit https://scene.p1x.in for '
-      'more information and latest '
-      'releases.')
+    Font.Name = 'Arial Narrow'
+    Font.Style = [fsBold, fsItalic]
+    ParentColor = False
     ParentCtl3D = False
     ParentFont = False
-    PlainText = True
-    ReadOnly = True
-    TabOrder = 1
+    TabOrder = 3
+    object LabelPolys: TLabel
+      Left = 12
+      Top = 14
+      Width = 78
+      Height = 15
+      Caption = 'POLYGONS: 9999'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object LabelFrameTime: TLabel
+      Left = 100
+      Top = 14
+      Width = 94
+      Height = 15
+      Caption = 'FRAMETIME: 15.0ms'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object LabelTimeline: TLabel
+      Left = 204
+      Top = 14
+      Width = 92
+      Height = 15
+      Caption = 'CAMERA TIMELINE:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Arial Narrow'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+  end
+  object DataSource1: TDataSource
+    DataSet = ClientDataSet1
+    Left = 16
+    Top = 152
+  end
+  object ClientDataSet1: TClientDataSet
+    Aggregates = <>
+    FieldDefs = <
+      item
+        Name = 'timestamp'
+        DataType = ftFloat
+      end
+      item
+        Name = 'action'
+        DataType = ftString
+        Size = 16
+      end
+      item
+        Name = 'prop'
+        DataType = ftString
+        Size = 32
+      end
+      item
+        Name = 'x'
+        DataType = ftFloat
+      end
+      item
+        Name = 'y'
+        DataType = ftFloat
+      end
+      item
+        Name = 'z'
+        DataType = ftFloat
+      end
+      item
+        Name = 'rx'
+        DataType = ftFloat
+      end
+      item
+        Name = 'ry'
+        DataType = ftFloat
+      end
+      item
+        Name = 'rz'
+        DataType = ftFloat
+      end
+      item
+        Name = 'scale'
+        DataType = ftFloat
+      end>
+    IndexDefs = <>
+    Params = <>
+    StoreDefs = True
+    Left = 56
+    Top = 152
+  end
+  object TimerUIUpdate: TTimer
+    Interval = 30
+    OnTimer = TimerUIUpdateTimer
+    Left = 265
+    Top = 10
   end
 end

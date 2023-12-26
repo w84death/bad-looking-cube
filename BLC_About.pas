@@ -3,15 +3,15 @@ unit BLC_About;
 interface
 
 uses
-  Windows, Forms, jpeg, Classes, StdCtrls, ExtCtrls, Controls, Graphics;
+  Windows, Forms, jpeg, Classes, StdCtrls, ExtCtrls, Controls, Graphics,
+  ComCtrls;
 
 type
   TFormAbout = class(TForm)
     ButtonOK: TButton;
     ImageP1X: TImage;
-    Label1: TLabel;
-    Label2: TLabel;
     Label4: TLabel;
+    RichAbout: TRichEdit;
     procedure ButtonOKClick(Sender: TObject);
     procedure CenterWindow();
     procedure FormCreate(Sender: TObject);

@@ -9,7 +9,6 @@ uses
 type
 
   TFormCC = class(TForm)
-    ButtonRunDemo: TButton;
     ButtonPause: TButton;
     ButtonSeekForward: TButton;
     ButtonEnd: TButton;
@@ -18,9 +17,7 @@ type
     GroupPlayback: TGroupBox;
     GroupTimer: TGroupBox;
     LabelTimeStamp: TLabel;
-    ButtonCloseDermo: TButton;
     TimerDemo: TTimer;
-    GroupDemo: TGroupBox;
     TrackBarDemoTime: TTrackBar;
     MainMenu1: TMainMenu;
     DEMO1: TMenuItem;
@@ -28,12 +25,14 @@ type
     MS1: TMenuItem;
     FULLSCREEN1: TMenuItem;
     BadLookingCube1: TMenuItem;
-    DEMO011: TMenuItem;
     GroupStats: TGroupBox;
     LabelPolys: TLabel;
     LabelFrameTime: TLabel;
-    procedure ButtonRunDemoClick(Sender: TObject);
-    procedure ButtonCloseDermoClick(Sender: TObject);
+    MenuWindow: TMenuItem;
+    SET320x2001: TMenuItem;
+    SET640x4801: TMenuItem;
+    MenuStartDemo: TMenuItem;
+    Center1: TMenuItem;
     procedure RefreshTimer();
     procedure TimerDemoTimer(Sender: TObject);
     procedure ButtonPauseClick(Sender: TObject);
@@ -48,8 +47,13 @@ type
     procedure BadLookingCube1Click(Sender: TObject);
     procedure DEMO011Click(Sender: TObject);
     procedure FULLSCREEN1Click(Sender: TObject);
+    procedure SET320x2001Click(Sender: TObject);
+    procedure SET640x4801Click(Sender: TObject);
+    procedure MenuStartDemoClick(Sender: TObject);
+    procedure Center1Click(Sender: TObject);
   public
     procedure OpenDemoWindow();
+    procedure CloseDemoWindow();
     function ToggleFreeCamera(): Boolean;
   end;
 
@@ -71,36 +75,33 @@ begin
   FormDemo.Show;
   FormDemo.InitDemo;
   GroupStats.Visible := true;
-  ButtonCloseDermo.Enabled := true;
-  ButtonRunDemo.Enabled := false;
+  MenuStartDemo.Caption := 'Stop demo';
+  MenuWindow.Visible := true;
   GroupPlayback.Visible := true;
+  TrackBarDemoTime.Enabled := true;
   DemoTime := 0.0;
   TimerDemo.Enabled := true;
   BLC_Renderer.DemoRunning := true;
   RefreshTimer;
 end;
 
-function TFormCC.ToggleFreeCamera(): Boolean;
-begin
-  Result := FormDemo.ToggleFreeCamera();
-end;
-
-procedure TFormCC.ButtonRunDemoClick(Sender: TObject);
-begin
-  OpenDemoWindow;
-end;
-
-procedure TFormCC.ButtonCloseDermoClick(Sender: TObject);
+procedure TFormCC.CloseDemoWindow();
 begin
   FormDemo.Close;
   GroupStats.Visible := false;
-  ButtonCloseDermo.Enabled := false;
-  ButtonRunDemo.Enabled := true;
+  MenuStartDemo.Caption := 'Start demo';
+  MenuWindow.Visible := true;
   GroupPlayback.Visible := false;
+  TrackBarDemoTime.Enabled := false;
   DemoTime := 0.0;
   TimerDemo.Enabled := false;
   BLC_Renderer.DemoRunning := false;
   RefreshTimer;
+end;
+
+function TFormCC.ToggleFreeCamera(): Boolean;
+begin
+  Result := FormDemo.ToggleFreeCamera();
 end;
 
 procedure TFormCC.RefreshTimer();
@@ -225,6 +226,37 @@ end;
 procedure TFormCC.FULLSCREEN1Click(Sender: TObject);
 begin
   FormDemo.SetDemoFullScreen();
+end;
+
+procedure TFormCC.SET320x2001Click(Sender: TObject);
+begin
+  FormDemo.Width := 320;
+  FormDemo.Height := 200;
+  FormDemo.CenterWindow;
+end;
+
+procedure TFormCC.SET640x4801Click(Sender: TObject);
+begin
+  FormDemo.Width := 640;
+  FormDemo.Height := 400;
+  FormDemo.CenterWindow;
+end;
+
+procedure TFormCC.MenuStartDemoClick(Sender: TObject);
+begin
+  if FormDemo.Visible then
+  begin
+    CloseDemoWindow;
+  end
+  else
+  begin
+    OpenDemoWindow;
+  end
+end;
+
+procedure TFormCC.Center1Click(Sender: TObject);
+begin
+  FormDemo.CenterWindow;
 end;
 
 end.

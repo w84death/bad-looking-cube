@@ -69,7 +69,8 @@ type
 
   TScene = record
     Skybox: TModel;
-    Sun: TVertex;
+    SunPos: array[0..3] of GLfloat;
+    SunColor: TColor;
     Ambient: TColor;
     Terrain: TModel;
     Camera: TCamera;
@@ -412,17 +413,19 @@ begin
   glDisable(GL_FOG);
   RenderModel(Scene.Skybox);
   glDepthMask(GL_TRUE);
-
   //glEnable(GL_LIGHTING);
 
   if Scene.Fog.Enabled then
     glEnable(GL_FOG);
+
 
   // CAMERA
   glRotatef(90-Scene.Camera.Rotation.X, 1.0,0.0,0.0);
   glRotatef(-Scene.Camera.Rotation.Y, 0.0,1.0,0.0);
   glRotatef(-Scene.Camera.Rotation.Z, 0.0,0.0,1.0);
   glTranslatef(-Scene.Camera.Position.X, -Scene.Camera.Position.Y, -Scene.Camera.Position.Z);
+
+  glLightfv(GL_LIGHT0, GL_POSITION, @Scene.SunPos);
 
   // MODELS
   PolyCount := 0;
@@ -603,12 +606,13 @@ begin
         end;
         if Fields[_ACTION] = 'sun' then
         begin
-          Scene.Sun.X := StrToFloat(Fields[_X]);
-          Scene.Sun.Y := StrToFloat(Fields[_Y]);
-          Scene.Sun.Z := StrToFloat(Fields[_Z]);
-          Scene.Sun.Color.R := StrToFloat(Fields[_R]);
-          Scene.Sun.Color.G := StrToFloat(Fields[_G]);
-          Scene.Sun.Color.B := StrToFloat(Fields[_B]);
+          Scene.SunPos[0] := StrToFloat(Fields[_X]);
+          Scene.SunPos[1] := StrToFloat(Fields[_Y]);
+          Scene.SunPos[2] := StrToFloat(Fields[_Z]);
+          Scene.SunPos[3] := 0.0;
+          Scene.SunColor.R := StrToFloat(Fields[_R]);
+          Scene.SunColor.G := StrToFloat(Fields[_G]);
+          Scene.SunColor.B := StrToFloat(Fields[_B]);
         end;
         if Fields[_ACTION] = 'ambient' then
         begin
@@ -727,14 +731,18 @@ begin
     glHint(GL_FOG_HINT, GL_DONT_CARE);
   end;
 
-  //glEnable(GL_LIGHTING);
-  //glEnable(GL_LIGHT_MODEL_AMBIENT);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT_MODEL_AMBIENT);
 
-  //glEnable(GL_LIGHT0);
-  //glLightfv(GL_LIGHT0, GL_AMBIENT, @Scene.Ambient);
-  //glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.Sun.Color);
-  //glLightfv(GL_LIGHT0, GL_POSITION, @Scene.Sun);
+  glEnable(GL_LIGHT0);
+  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0);
+  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, @Scene.Ambient);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, @Scene.SunColor);
+  glLightfv(GL_LIGHT0, GL_POSITION, @Scene.SunPos);
 
+  
   LastFrameTime := Now;
 
 end;
@@ -807,7 +815,6 @@ begin
     ViewportX := 0;
     ViewportY := Round((Height - ViewportHeight) / 2);
   end;
-
   glViewport(ViewportX, ViewportY, Round(ViewportWidth), Round(ViewportHeight));
 end;
 
