@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, OpenGL, SysUtils, Variants, Classes, Controls, Forms,
-  ExtCtrls, Messages, Math, DateUtils;
+  ExtCtrls, Messages, Math, DateUtils, MPlayer;
 
 type
   TColor = record
@@ -80,6 +80,7 @@ type
 
   TFormDemo = class(TForm)
     Timer1: TTimer;
+    MIDIPlayer: TMediaPlayer;
     procedure Timer1Timer(Sender: TObject);
     procedure Direct();
     procedure Render();
@@ -123,7 +124,7 @@ var
   DemoLength: Double = 120.0;
   Screenplay: array of TScreenplayLine;
   ActiveLine: Integer = 0;
-  DemoRunning: Boolean = true;
+  DemoRunning: Boolean = false;
   MovementVector: TVertex = (X:0.0;Y:0.0;Z:0.0);
   Scene: TScene;
   DC: HDC;
@@ -167,7 +168,11 @@ begin
   begin
     DemoTime := DemoTime + FrameTime/1000;
     if DemoTime > DemoLength then
+    begin
       DemoTime := 0.0;
+      MIDIPlayer.Rewind;
+      MIDIPlayer.Play;
+    end;
   end;
 
   Direct();
@@ -902,7 +907,6 @@ end;
 procedure TFormDemo.FormCreate(Sender: TObject);
 begin
   CenterWindow;
-  
   SetCurrentDir(ExtractFilePath(Application.ExeName));
   OldWindowStyle := GetWindowLong(Handle, GWL_STYLE);
 end;

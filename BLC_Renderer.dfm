@@ -488,6 +488,19 @@ object FormDemo: TFormDemo
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
+  object MIDIPlayer: TMediaPlayer
+    Left = 40
+    Top = 8
+    Width = 29
+    Height = 30
+    VisibleButtons = [btPlay]
+    AutoOpen = True
+    FileName = 
+      'D:\Program Files\Borland\Delphi7\Projects\BadLookingCube\Tunes\t' +
+      'est-tune.mid'
+    Visible = False
+    TabOrder = 0
+  end
   object Timer1: TTimer
     Tag = 9
     Interval = 15

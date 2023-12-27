@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, SysUtils, Variants, Classes, Controls, Graphics, Forms,
-  Dialogs, StdCtrls, jpeg, ComCtrls, ExtCtrls, Menus;
+  Dialogs, StdCtrls, jpeg, ComCtrls, ExtCtrls, Menus, MPlayer;
 
 type
 
@@ -46,7 +46,6 @@ type
     procedure ButtonEndClick(Sender: TObject);
     procedure ButtonSeekForwardClick(Sender: TObject);
     procedure ButtonSeekBackClick(Sender: TObject);
-    procedure TrackBarDemoTimeChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure CenterWindow();
     procedure APPLICATION1Click(Sender: TObject);
@@ -58,6 +57,7 @@ type
     procedure MenuStartDemoClick(Sender: TObject);
     procedure Center1Click(Sender: TObject);
     procedure ButtonOpenDemoClick(Sender: TObject);
+    procedure TrackBarDemoTimeChange(Sender: TObject);
   public
     procedure OpenDemoWindow();
     procedure CloseDemoWindow();
@@ -93,6 +93,7 @@ begin
   GroupTimer.Visible := true;
   TrackBarDemoTime.Visible := true;
   RefreshTimer;
+  FormDemo.MIDIPlayer.Play;
 end;
 
 procedure TFormCC.CloseDemoWindow();
@@ -110,7 +111,7 @@ begin
   GroupTimer.Visible := false;
   TrackBarDemoTime.Visible := false;
   RefreshTimer;
-
+  FormDemo.MIDIPlayer.Stop;
 end;
 
 function TFormCC.ToggleFreeCamera(): Boolean;
@@ -126,7 +127,6 @@ begin
   LabelTimeStamp.Caption := time;
   BLC_Renderer.DemoTime := DemoTime;
   TrackBarDemoTime.Position := Round(DemoTime*100);
-
   if TimerDemo.Enabled  then
   begin
     ButtonPause.Caption := 'PAUSE';
@@ -157,11 +157,13 @@ begin
   begin
     TimerDemo.Enabled := false;
     DemoRunning := false;
+    FormDemo.MIDIPlayer.Pause;
   end
   else
   begin
     TimerDemo.Enabled := true;
     DemoRunning := true;
+    FormDemo.MIDIPlayer.Resume;
   end;
   RefreshTimer;
 end;
@@ -189,6 +191,9 @@ begin
     DemoTime := DemoLength;
   end;
   RefreshTimer;
+  FormDemo.MIDIPlayer.Stop;
+  FormDemo.MIDIPlayer.StartPos := Round(DemoTime);
+  FormDemo.MIDIPlayer.Play;
 end;
 
 procedure TFormCC.ButtonSeekBackClick(Sender: TObject);
@@ -202,12 +207,9 @@ begin
     DemoTime := 0.0;
   end;
   RefreshTimer;
-end;
-
-procedure TFormCC.TrackBarDemoTimeChange(Sender: TObject);
-begin
-     DemoTime := TrackBarDemoTime.Position/100;
-     RefreshTimer;
+  FormDemo.MIDIPlayer.Stop;
+  FormDemo.MIDIPlayer.StartPos := Round(DemoTime);
+  FormDemo.MIDIPlayer.Play;
 end;
 
 procedure TFormCC.FormCreate(Sender: TObject);
@@ -276,6 +278,12 @@ end;
 procedure TFormCC.ButtonOpenDemoClick(Sender: TObject);
 begin
   OpenDemoWindow;
+end;
+
+procedure TFormCC.TrackBarDemoTimeChange(Sender: TObject);
+begin
+  DemoTime := TrackBarDemoTime.Position/100;
+  RefreshTimer;
 end;
 
 end.
